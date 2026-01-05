@@ -30,13 +30,11 @@ export class AuthService implements OnModuleInit {
     async getProfile(userId: number) {
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
-            include: { role: { select: { id: true } } },
         });
         if (user) {
             const { password, ...result } = user;
             return {
                 ...result,
-                role: result.role?.id,
             };
         }
         return null;
