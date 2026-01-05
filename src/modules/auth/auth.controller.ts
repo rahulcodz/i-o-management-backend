@@ -1,6 +1,7 @@
-import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException, Get, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -16,5 +17,13 @@ export class AuthController {
             throw new UnauthorizedException('Invalid credentials');
         }
         return this.authService.login(user);
+    }
+
+    @Get('me')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get current user profile' })
+    async getProfile(@Request() req) {
+        return this.authService.getProfile(req.user.userId);
     }
 }

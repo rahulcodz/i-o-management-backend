@@ -17,13 +17,14 @@ import { AuthModule } from './modules/auth/auth.module';
     load: [configuration],
     validationSchema,
   }),
-  PrismaModule,
-  UserModule,
-  PredictOsModule,
-  UsersModule,
-  RoleModule,
-  AuthModule,],
+    PrismaModule,
+    AuthModule,
+    UserModule,
+    PredictOsModule,
+    UsersModule,
+    RoleModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
