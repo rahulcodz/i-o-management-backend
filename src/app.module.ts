@@ -7,6 +7,9 @@ import { ConfigModule } from '@nestjs/config';
 import { validationSchema } from './config/validation';
 import { UserModule } from './modules/user/user.module';
 import { PredictOsModule } from './modules/predict-os/predict-os.module';
+import { UsersModule } from './modules/admin/users/users.module';
+import { RoleModule } from './modules/admin/role/role.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -16,7 +19,10 @@ import { PredictOsModule } from './modules/predict-os/predict-os.module';
   }),
   PrismaModule,
   UserModule,
-  PredictOsModule,],
+  PredictOsModule,
+  UsersModule,
+  RoleModule,
+  AuthModule,],
   controllers: [AppController],
   providers: [AppService],
 })
