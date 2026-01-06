@@ -10,6 +10,8 @@ import { PredictOsModule } from './modules/predict-os/predict-os.module';
 import { UsersModule } from './modules/admin/users/users.module';
 import { RoleModule } from './modules/admin/role/role.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { OrganizationModule } from './modules/admin/organization/organization.module';
+import { ComboModule } from './modules/combo/combo.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -23,6 +25,8 @@ import { AuthModule } from './modules/auth/auth.module';
     PredictOsModule,
     UsersModule,
     RoleModule,
+    OrganizationModule,
+    ComboModule,
   ],
   controllers: [AppController],
   providers: [AppService],

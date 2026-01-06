@@ -21,7 +21,12 @@ export class AuthService implements OnModuleInit {
     }
 
     async login(user: any) {
-        const payload = { email: user.email, sub: user.id, roleId: user.roleId };
+        const payload = { 
+            email: user.email, 
+            sub: user.id, 
+            roleId: user.roleId,
+            organizationId: user.organizationId 
+        };
         return {
             access_token: this.jwtService.sign(payload),
         };
@@ -30,6 +35,10 @@ export class AuthService implements OnModuleInit {
     async getProfile(userId: number) {
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
+            include: {
+                role: true,
+                organization: true,
+            },
         });
         if (user) {
             const { password, ...result } = user;

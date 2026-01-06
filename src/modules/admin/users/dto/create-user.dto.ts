@@ -25,4 +25,9 @@ export class CreateUserDto {
     @IsNotEmpty()
     @IsInt()
     roleId: number;
+
+    @ApiProperty({ required: false, description: 'Organization ID (required for non-Super Admin users)' })
+    @IsOptional()
+    @IsInt()
+    organizationId?: number;
 }

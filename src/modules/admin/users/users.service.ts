@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -10,22 +10,61 @@ import { Prisma } from '@prisma/client';
 export class UsersService {
     constructor(private prisma: PrismaService) { }
 
-    async create(createUserDto: CreateUserDto) {
+    async create(createUserDto: CreateUserDto, currentUser: any) {
+        // Get current user's role
+        const currentUserRole = await this.prisma.role.findUnique({
+            where: { id: currentUser.roleId },
+        });
+
+        let organizationId = createUserDto.organizationId;
+
+        // If current user is not Super Admin, use their organization
+        if (currentUserRole?.name !== 'Super Admin') {
+            if (!currentUser.organizationId) {
+                throw new ForbiddenException('User must belong to an organization');
+            }
+            organizationId = currentUser.organizationId;
+        } else {
+            // Super Admin can create users with or without organization
+            // If creating an admin user, organizationId is required
+            if (!organizationId) {
+                throw new ForbiddenException('Organization ID is required when creating admin users');
+            }
+        }
+
         const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
         return this.prisma.user.create({
             data: {
                 ...createUserDto,
                 password: hashedPassword,
+                organizationId,
+            },
+            include: {
+                role: true,
+                organization: true,
             },
         });
     }
 
-    async findAll(query: QueryUserDto) {
+    async findAll(query: QueryUserDto, currentUser: any) {
         const { page = 1, limit = 10, search, roleId, createdFrom, createdTo } = query;
         const skip = (page - 1) * limit;
 
+        // Get current user's role
+        const currentUserRole = await this.prisma.role.findUnique({
+            where: { id: currentUser.roleId },
+        });
+
         // Build where clause
         const where: Prisma.UserWhereInput = {};
+
+        // If not Super Admin, filter by organization
+        if (currentUserRole?.name !== 'Super Admin') {
+            if (!currentUser.organizationId) {
+                throw new ForbiddenException('User must belong to an organization');
+            }
+            where.organizationId = currentUser.organizationId;
+        }
 
         // Search by name or email
         if (search) {
@@ -57,7 +96,10 @@ export class UsersService {
         // Get paginated results
         const users = await this.prisma.user.findMany({
             where,
-            include: { role: true },
+            include: { 
+                role: true,
+                organization: true,
+            },
             skip,
             take: limit,
             orderBy: { createdAt: 'desc' },
@@ -74,19 +116,55 @@ export class UsersService {
         };
     }
 
-    findOne(id: number) {
-        return this.prisma.user.findUnique({ where: { id }, include: { role: true } });
+    async findOne(id: number, currentUser: any) {
+        const user = await this.prisma.user.findUnique({ 
+            where: { id }, 
+            include: { 
+                role: true,
+                organization: true,
+            } 
+        });
+
+        if (!user) {
+            return null;
+        }
+
+        // Check if user has access (Super Admin or same organization)
+        const currentUserRole = await this.prisma.role.findUnique({
+            where: { id: currentUser.roleId },
+        });
+
+        if (currentUserRole?.name !== 'Super Admin' && user.organizationId !== currentUser.organizationId) {
+            throw new ForbiddenException('Access denied');
+        }
+
+        return user;
     }
 
-    async update(id: number, updateUserDto: UpdateUserDto) {
+    async update(id: number, updateUserDto: UpdateUserDto, currentUser: any) {
+        // Check if user exists and has access
+        const existingUser = await this.findOne(id, currentUser);
+        if (!existingUser) {
+            throw new ForbiddenException('User not found');
+        }
+
         return this.prisma.user.update({ 
             where: { id }, 
             data: updateUserDto,
-            include: { role: true },
+            include: { 
+                role: true,
+                organization: true,
+            },
         });
     }
 
-    remove(id: number) {
+    async remove(id: number, currentUser: any) {
+        // Check if user exists and has access
+        const existingUser = await this.findOne(id, currentUser);
+        if (!existingUser) {
+            throw new ForbiddenException('User not found');
+        }
+
         return this.prisma.user.delete({ where: { id } });
     }
 }
