@@ -100,3 +100,43 @@ model Product {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
+
+model PackageType {
+  id            Int      @id @default(autoincrement())
+  packageType   String
+  markAsDefault Boolean  @default(false)
+  deletedAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model PaymentTerm {
+  id            Int      @id @default(autoincrement())
+  name          String
+  term          String
+  markAsDefault Boolean  @default(false)
+  deletedAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ShipmentTerm {
+  id            Int      @id @default(autoincrement())
+  name          String
+  term          String
+  markAsDefault Boolean  @default(false)
+  deletedAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Currency {
+  id            Int      @id @default(autoincrement())
+  currencyName  String
+  symbol        String?
+  words         String?
+  markAsDefault Boolean  @default(false)
+  deletedAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
