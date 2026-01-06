@@ -140,3 +140,30 @@ model Currency {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+model BankDetail {
+  id              Int      @id @default(autoincrement())
+  bankName        String
+  accountNo       String
+  swiftCode       String
+  otherDetails    String?
+  ifscCode        String
+  isVostroPayment String?  @default("N")
+  beneficiaryName String
+  accountType     String?  @default("CURRENT ACCOUNT")
+  markAsDefault   Boolean  @default(false)
+  adCode          String
+  vostroType      String?
+  deletedAt       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model QualitySpeculation {
+  id            Int      @id @default(autoincrement())
+  name          String
+  specification String
+  deletedAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

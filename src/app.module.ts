@@ -20,6 +20,8 @@ import { PackageTypeModule } from './modules/settings/package-type/package-type.
 import { PaymentTermModule } from './modules/settings/payment-term/payment-term.module';
 import { ShipmentTermModule } from './modules/settings/shipment-term/shipment-term.module';
 import { CurrencyModule } from './modules/settings/currency/currency.module';
+import { BankDetailModule } from './modules/settings/bank-detail/bank-detail.module';
+import { QualitySpeculationModule } from './modules/settings/quality-speculation/quality-speculation.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -43,6 +45,8 @@ import { CurrencyModule } from './modules/settings/currency/currency.module';
     PaymentTermModule,
     ShipmentTermModule,
     CurrencyModule,
+    BankDetailModule,
+    QualitySpeculationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
