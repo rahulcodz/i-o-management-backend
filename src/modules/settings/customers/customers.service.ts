@@ -104,19 +104,8 @@ export class CustomersService {
         const customers = await this.prisma.customer.findMany({
             where,
             include: {
-                manager: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                    },
-                },
-                organization: {
-                    select: {
-                        id: true,
-                        name: true,
-                    },
-                },
+                manager: false,
+                organization: false,
             },
             skip,
             take: limit,
@@ -141,19 +130,8 @@ export class CustomersService {
                 deletedAt: null, // Only get non-deleted customer
             },
             include: {
-                manager: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                    },
-                },
-                organization: {
-                    select: {
-                        id: true,
-                        name: true,
-                    },
-                },
+                manager: false,
+                organization: false,
             },
         });
 

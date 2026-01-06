@@ -13,6 +13,9 @@ import { AuthModule } from './modules/auth/auth.module';
 import { OrganizationModule } from './modules/admin/organization/organization.module';
 import { ComboModule } from './modules/combo/combo.module';
 import { CustomersModule } from './modules/settings/customers/customers.module';
+import { PortModule } from './modules/settings/port/port.module';
+import { UnitModule } from './modules/settings/unit/unit.module';
+import { ProductModule } from './modules/settings/product/product.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -29,6 +32,9 @@ import { CustomersModule } from './modules/settings/customers/customers.module';
     OrganizationModule,
     ComboModule,
     CustomersModule,
+    PortModule,
+    UnitModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],

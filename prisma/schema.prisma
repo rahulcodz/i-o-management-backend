@@ -69,3 +69,34 @@ model Customer {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 }
+
+model Port {
+  id        Int      @id @default(autoincrement())
+  country   String
+  portName  String
+  portCode  String?
+  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Unit {
+  id         Int      @id @default(autoincrement())
+  orderUnit  String
+  default    Boolean  @default(false)
+  deletedAt  DateTime?
+  products   Product[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Product {
+  id         Int      @id @default(autoincrement())
+  unitId     Int
+  unit       Unit     @relation(fields: [unitId], references: [id])
+  netWeight  Float
+  grossWeight Float
+  deletedAt  DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
