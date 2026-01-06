@@ -3,6 +3,7 @@ import { ComboService } from './combo.service';
 import { QueryRoleComboDto } from './dto/query-role-combo.dto';
 import { QueryUserComboDto } from './dto/query-user-combo.dto';
 import { QueryOrganizationComboDto } from './dto/query-organization-combo.dto';
+import { QueryCountryComboDto } from './dto/query-country-combo.dto';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -32,5 +33,12 @@ export class ComboController {
     @ApiQuery({ name: 'search', required: false, type: String, description: 'Search organizations by name' })
     getOrganizationsCombo(@Request() req, @Query() query: QueryOrganizationComboDto) {
         return this.comboService.getOrganizationsCombo(req.user, query);
+    }
+
+    @Get('countries')
+    @ApiOperation({ summary: 'Get countries combo - returns list of all countries' })
+    @ApiQuery({ name: 'search', required: false, type: String, description: 'Search countries by name or ID' })
+    getCountriesCombo(@Query() query: QueryCountryComboDto) {
+        return this.comboService.getCountriesCombo(query);
     }
 }
