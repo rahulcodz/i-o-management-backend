@@ -12,6 +12,7 @@ import { RoleModule } from './modules/admin/role/role.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { OrganizationModule } from './modules/admin/organization/organization.module';
 import { ComboModule } from './modules/combo/combo.module';
+import { CustomersModule } from './modules/settings/customers/customers.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -27,6 +28,7 @@ import { ComboModule } from './modules/combo/combo.module';
     RoleModule,
     OrganizationModule,
     ComboModule,
+    CustomersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

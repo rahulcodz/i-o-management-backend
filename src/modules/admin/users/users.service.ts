@@ -96,9 +96,27 @@ export class UsersService {
         // Get paginated results
         const users = await this.prisma.user.findMany({
             where,
-            include: { 
-                role: true,
-                organization: true,
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                mobile: true,
+                roleId: true,
+                organizationId: true,
+                createdAt: true,
+                updatedAt: true,
+                role: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                organization: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                }
             },
             skip,
             take: limit,
@@ -117,12 +135,12 @@ export class UsersService {
     }
 
     async findOne(id: number, currentUser: any) {
-        const user = await this.prisma.user.findUnique({ 
-            where: { id }, 
-            include: { 
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+            include: {
                 role: true,
                 organization: true,
-            } 
+            }
         });
 
         if (!user) {
@@ -148,10 +166,10 @@ export class UsersService {
             throw new ForbiddenException('User not found');
         }
 
-        return this.prisma.user.update({ 
-            where: { id }, 
+        return this.prisma.user.update({
+            where: { id },
             data: updateUserDto,
-            include: { 
+            include: {
                 role: true,
                 organization: true,
             },

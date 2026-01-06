@@ -20,6 +20,7 @@ model Organization {
   phone       String?
   address     String?
   users       User[]
+  customers   Customer[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -34,6 +35,7 @@ model User {
   role           Role?        @relation(fields: [roleId], references: [id])
   organizationId Int?
   organization   Organization? @relation(fields: [organizationId], references: [id])
+  managedCustomers Customer[]  @relation("CustomerManager")
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 }
@@ -45,4 +47,25 @@ model Role {
   users       User[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Customer {
+  id             Int          @id @default(autoincrement())
+  customerName   String
+  email          String?
+  country        String
+  company        String?
+  address        String
+  bankName       String?
+  beneficiaryName String?
+  accountNo      Int?
+  accountType    String?
+  other          String?
+  managerId      Int?
+  manager        User?        @relation("CustomerManager", fields: [managerId], references: [id])
+  organizationId Int?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  deletedAt      DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }
