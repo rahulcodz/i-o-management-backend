@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { QueryOrganizationDto } from './dto/query-organization.dto';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { SuperAdminGuard } from '../../auth/super-admin.guard';
 
@@ -20,9 +21,12 @@ export class OrganizationController {
     }
 
     @Get()
-    @ApiOperation({ summary: 'Get all organizations (Super Admin only)' })
-    findAll() {
-        return this.organizationService.findAll();
+    @ApiOperation({ summary: 'Get all organizations with search and pagination (Super Admin only)' })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number (default: 1)' })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page (default: 10)' })
+    @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by organization name, email, or phone' })
+    findAll(@Query() query: QueryOrganizationDto) {
+        return this.organizationService.findAll(query);
     }
 
     @Get(':id')

@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { QueryRoleDto } from './dto/query-role.dto';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 
 @ApiTags('Admin/Roles')
@@ -19,9 +20,12 @@ export class RoleController {
     }
 
     @Get()
-    @ApiOperation({ summary: 'Get all roles' })
-    findAll() {
-        return this.roleService.findAll();
+    @ApiOperation({ summary: 'Get all roles with search and pagination' })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number (default: 1)' })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page (default: 10)' })
+    @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by role name' })
+    findAll(@Query() query: QueryRoleDto) {
+        return this.roleService.findAll(query);
     }
 
     @Get(':id')
