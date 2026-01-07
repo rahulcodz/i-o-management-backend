@@ -23,6 +23,7 @@ import { CurrencyModule } from './modules/settings/currency/currency.module';
 import { BankDetailModule } from './modules/settings/bank-detail/bank-detail.module';
 import { QualitySpeculationModule } from './modules/settings/quality-speculation/quality-speculation.module';
 import { ProductModule } from './modules/settings/product/product.module';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -49,6 +50,7 @@ import { ProductModule } from './modules/settings/product/product.module';
     BankDetailModule,
     QualitySpeculationModule,
     ProductModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
