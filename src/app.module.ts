@@ -22,6 +22,7 @@ import { ShipmentTermModule } from './modules/settings/shipment-term/shipment-te
 import { CurrencyModule } from './modules/settings/currency/currency.module';
 import { BankDetailModule } from './modules/settings/bank-detail/bank-detail.module';
 import { QualitySpeculationModule } from './modules/settings/quality-speculation/quality-speculation.module';
+import { ProductModule } from './modules/settings/product/product.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -47,6 +48,7 @@ import { QualitySpeculationModule } from './modules/settings/quality-speculation
     CurrencyModule,
     BankDetailModule,
     QualitySpeculationModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],

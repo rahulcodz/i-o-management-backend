@@ -93,14 +93,32 @@ model Unit {
 }
 
 model Product {
-  id         Int      @id @default(autoincrement())
-  unitId     Int
-  unit       Unit     @relation(fields: [unitId], references: [id])
-  netWeight  Float
-  grossWeight Float
-  deletedAt  DateTime?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id              Int      @id @default(autoincrement())
+  // Product Detail fields
+  name            String
+  gst             Float?   @default(0)
+  description     String?  @db.Text
+  hsnSac          String
+  image           String?
+  inventoryType   String?  @default("Finished Goods")
+  // Advanced fields
+  productTag      String?
+  unitId          Int
+  unit            Unit     @relation(fields: [unitId], references: [id])
+  netWeight       Float?
+  grossWeight     Float?
+  dimensionLength Float?
+  dimensionWidth  Float?
+  dimensionHeight Float?
+  sellPrice       Float?
+  customFields    Json?    // Array of { fieldName: string, value: string }
+  // Variants stored as JSON array
+  variants        Json?    // Array of { variantName: string, variantImage: string }
+  // Scheme details stored as JSON array
+  schemes         Json?    // Array of { name: string, unit: string, percentageValue: number, percentageUnit: string, capValue: number, capUnit: string }
+  deletedAt       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model PackageType {
