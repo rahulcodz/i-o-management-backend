@@ -15,7 +15,7 @@ import { ComboModule } from './modules/combo/combo.module';
 import { CustomersModule } from './modules/settings/customers/customers.module';
 import { PortModule } from './modules/settings/port/port.module';
 import { UnitModule } from './modules/settings/unit/unit.module';
-import { ProductModule } from './modules/settings/product/product.module';
+import { PackageModule } from './modules/settings/package/package.module';
 import { PackageTypeModule } from './modules/settings/package-type/package-type.module';
 import { PaymentTermModule } from './modules/settings/payment-term/payment-term.module';
 import { ShipmentTermModule } from './modules/settings/shipment-term/shipment-term.module';
@@ -40,7 +40,7 @@ import { QualitySpeculationModule } from './modules/settings/quality-speculation
     CustomersModule,
     PortModule,
     UnitModule,
-    ProductModule,
+    PackageModule,
     PackageTypeModule,
     PaymentTermModule,
     ShipmentTermModule,

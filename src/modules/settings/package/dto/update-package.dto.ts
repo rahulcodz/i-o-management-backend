@@ -1,7 +1,7 @@
 import { IsOptional, IsInt, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UpdateProductDto {
+export class UpdatePackageDto {
     @ApiProperty({ required: false })
     @IsOptional()
     @IsInt()

@@ -1,19 +1,19 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { QueryProductDto } from './dto/query-product.dto';
+import { CreatePackageDto } from './dto/create-package.dto';
+import { UpdatePackageDto } from './dto/update-package.dto';
+import { QueryPackageDto } from './dto/query-package.dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
-export class ProductService {
+export class PackageService {
     constructor(private prisma: PrismaService) { }
 
-    async create(createProductDto: CreateProductDto) {
+    async create(createPackageDto: CreatePackageDto) {
         // Verify unit exists and is not deleted
         const unit = await this.prisma.unit.findFirst({
             where: {
-                id: createProductDto.unitId,
+                id: createPackageDto.unitId,
                 deletedAt: null,
             },
         });
@@ -23,22 +23,22 @@ export class ProductService {
         }
 
         return this.prisma.product.create({
-            data: createProductDto,
+            data: createPackageDto,
             include: {
                 unit: false,
             },
         });
     }
 
-    async findAll(query: QueryProductDto) {
+    async findAll(query: QueryPackageDto) {
         const { page = 1, limit = 10, search } = query;
         const skip = (page - 1) * limit;
 
         // Build where clause
         const where: Prisma.ProductWhereInput = {
-            deletedAt: null, // Only get non-deleted products
+            deletedAt: null, // Only get non-deleted packages
             unit: {
-                deletedAt: null, // Only get products with non-deleted units
+                deletedAt: null, // Only get packages with non-deleted units
             },
         };
 
@@ -57,7 +57,7 @@ export class ProductService {
         const total = await this.prisma.product.count({ where });
 
         // Get paginated results
-        const products = await this.prisma.product.findMany({
+        const packages = await this.prisma.product.findMany({
             where,
             include: {
                 unit: false,
@@ -68,7 +68,7 @@ export class ProductService {
         });
 
         return {
-            data: products,
+            data: packages,
             meta: {
                 page,
                 limit,
@@ -79,12 +79,12 @@ export class ProductService {
     }
 
     async findOne(id: number) {
-        const product = await this.prisma.product.findFirst({
+        const packageItem = await this.prisma.product.findFirst({
             where: {
                 id,
-                deletedAt: null, // Only get non-deleted product
+                deletedAt: null, // Only get non-deleted package
                 unit: {
-                    deletedAt: null, // Only get product with non-deleted unit
+                    deletedAt: null, // Only get package with non-deleted unit
                 },
             },
             include: {
@@ -92,25 +92,25 @@ export class ProductService {
             },
         });
 
-        if (!product) {
-            throw new NotFoundException('Product not found');
+        if (!packageItem) {
+            throw new NotFoundException('Package not found');
         }
 
-        return product;
+        return packageItem;
     }
 
-    async update(id: number, updateProductDto: UpdateProductDto) {
-        // Check if product exists
-        const existingProduct = await this.findOne(id);
-        if (!existingProduct) {
-            throw new NotFoundException('Product not found');
+    async update(id: number, updatePackageDto: UpdatePackageDto) {
+        // Check if package exists
+        const existingPackage = await this.findOne(id);
+        if (!existingPackage) {
+            throw new NotFoundException('Package not found');
         }
 
         // If unitId is being updated, verify the new unit exists
-        if (updateProductDto.unitId) {
+        if (updatePackageDto.unitId) {
             const unit = await this.prisma.unit.findFirst({
                 where: {
-                    id: updateProductDto.unitId,
+                    id: updatePackageDto.unitId,
                     deletedAt: null,
                 },
             });
@@ -122,7 +122,7 @@ export class ProductService {
 
         return this.prisma.product.update({
             where: { id },
-            data: updateProductDto,
+            data: updatePackageDto,
             include: {
                 unit: true,
             },
@@ -130,10 +130,10 @@ export class ProductService {
     }
 
     async remove(id: number) {
-        // Check if product exists
-        const existingProduct = await this.findOne(id);
-        if (!existingProduct) {
-            throw new NotFoundException('Product not found');
+        // Check if package exists
+        const existingPackage = await this.findOne(id);
+        if (!existingPackage) {
+            throw new NotFoundException('Package not found');
         }
 
         // Soft delete by setting deletedAt

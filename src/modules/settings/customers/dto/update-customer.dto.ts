@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, IsString, IsNumber } from 'class-validator';
+import { IsEmail, IsOptional, IsString, IsNumber, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateCustomerDto {
@@ -51,4 +51,14 @@ export class UpdateCustomerDto {
     @IsOptional()
     @IsString()
     other?: string;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsBoolean()
+    isActive?: boolean;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsString()
+    swiftcode?: string;
 }

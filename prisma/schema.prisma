@@ -61,6 +61,8 @@ model Customer {
   accountNo      Int?
   accountType    String?
   other          String?
+  isActive       Boolean      @default(true)
+  swiftcode      String?
   managerId      Int?
   manager        User?        @relation("CustomerManager", fields: [managerId], references: [id])
   organizationId Int?
