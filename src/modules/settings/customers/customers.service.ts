@@ -40,13 +40,21 @@ export class CustomersService {
             organizationId = currentUser.organizationId;
         }
 
+        // Prepare data for Prisma
+        const data: any = {
+            ...createCustomerDto,
+            organizationId,
+            managerId: currentUser.userId,
+        };
+
+        // Convert addresses array to JSON if provided
+        if (createCustomerDto.addresses && createCustomerDto.addresses.length > 0) {
+            data.addresses = createCustomerDto.addresses;
+        }
+
         // Automatically set managerId from current logged-in user
         return this.prisma.customer.create({
-            data: {
-                ...createCustomerDto,
-                organizationId,
-                managerId: currentUser.userId,
-            },
+            data,
             include: {
                 manager: {
                     select: {
@@ -159,9 +167,17 @@ export class CustomersService {
             throw new NotFoundException('Customer not found');
         }
 
+        // Prepare data for Prisma
+        const data: any = { ...updateCustomerDto };
+
+        // Convert addresses array to JSON if provided
+        if (updateCustomerDto.addresses !== undefined) {
+            data.addresses = updateCustomerDto.addresses;
+        }
+
         return this.prisma.customer.update({
             where: { id },
-            data: updateCustomerDto,
+            data,
             include: {
                 manager: {
                     select: {

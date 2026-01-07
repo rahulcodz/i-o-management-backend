@@ -1,5 +1,7 @@
-import { IsNotEmpty, IsOptional, IsString, IsEmail, IsInt, IsNumber, IsBoolean } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsOptional, IsString, IsEmail, IsInt, IsNumber, IsBoolean, IsArray, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { AddressDto } from './address.dto';
 
 export class CreateCustomerDto {
     @ApiProperty()
@@ -22,10 +24,12 @@ export class CreateCustomerDto {
     @IsString()
     company?: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsString()
-    address: string;
+    @ApiProperty({ description: 'Array of customer addresses', type: [AddressDto] })
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => AddressDto)
+    addresses?: AddressDto[];
 
     @ApiProperty({ required: false })
     @IsOptional()

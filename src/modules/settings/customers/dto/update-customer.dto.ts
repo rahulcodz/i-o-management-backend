@@ -1,5 +1,7 @@
-import { IsEmail, IsOptional, IsString, IsNumber, IsBoolean } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsOptional, IsString, IsNumber, IsBoolean, IsArray, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { AddressDto } from './address.dto';
 
 export class UpdateCustomerDto {
     @ApiProperty({ required: false })
@@ -22,10 +24,12 @@ export class UpdateCustomerDto {
     @IsString()
     company?: string;
 
-    @ApiProperty({ required: false })
+    @ApiPropertyOptional({ description: 'Array of customer addresses', type: [AddressDto] })
     @IsOptional()
-    @IsString()
-    address?: string;
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => AddressDto)
+    addresses?: AddressDto[];
 
     @ApiProperty({ required: false })
     @IsOptional()

@@ -55,7 +55,7 @@ model Customer {
   email          String?
   country        String
   company        String?
-  address        String
+  addresses      Json?        // Array of { name: string }
   bankName       String?
   beneficiaryName String?
   accountNo      Int?
