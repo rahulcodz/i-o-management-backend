@@ -22,12 +22,32 @@ export class PackageService {
             throw new BadRequestException('Unit not found or has been deleted');
         }
 
-        return this.prisma.product.create({
-            data: createPackageDto,
+        // Create package with only the required fields
+        const packageItem = await this.prisma.product.create({
+            data: {
+                unitId: createPackageDto.unitId,
+                netWeight: createPackageDto.netWeight,
+                grossWeight: createPackageDto.grossWeight,
+            },
             include: {
-                unit: false,
+                unit: true,
             },
         });
+
+        // Return only the relevant fields
+        return {
+            success: true,
+            message: 'Package created successfully',
+            data: {
+                id: packageItem.id,
+                unitId: packageItem.unitId,
+                netWeight: packageItem.netWeight,
+                grossWeight: packageItem.grossWeight,
+                unit: packageItem.unit,
+                createdAt: packageItem.createdAt,
+                updatedAt: packageItem.updatedAt,
+            },
+        };
     }
 
     async findAll(query: QueryPackageDto) {
@@ -60,15 +80,27 @@ export class PackageService {
         const packages = await this.prisma.product.findMany({
             where,
             include: {
-                unit: false,
+                unit: true,
             },
             skip,
             take: limit,
             orderBy: { createdAt: 'desc' },
         });
 
+        // Map packages to return only relevant fields
+        const mappedPackages = packages.map((pkg) => ({
+            id: pkg.id,
+            unitId: pkg.unitId,
+            netWeight: pkg.netWeight,
+            grossWeight: pkg.grossWeight,
+            unit: pkg.unit,
+            createdAt: pkg.createdAt,
+            updatedAt: pkg.updatedAt,
+        }));
+
         return {
-            data: packages,
+            success: true,
+            data: mappedPackages,
             meta: {
                 page,
                 limit,
@@ -96,12 +128,30 @@ export class PackageService {
             throw new NotFoundException('Package not found');
         }
 
-        return packageItem;
+        // Return only the relevant fields
+        return {
+            success: true,
+            data: {
+                id: packageItem.id,
+                unitId: packageItem.unitId,
+                netWeight: packageItem.netWeight,
+                grossWeight: packageItem.grossWeight,
+                unit: packageItem.unit,
+                createdAt: packageItem.createdAt,
+                updatedAt: packageItem.updatedAt,
+            },
+        };
     }
 
     async update(id: number, updatePackageDto: UpdatePackageDto) {
         // Check if package exists
-        const existingPackage = await this.findOne(id);
+        const existingPackage = await this.prisma.product.findFirst({
+            where: {
+                id,
+                deletedAt: null,
+            },
+        });
+
         if (!existingPackage) {
             throw new NotFoundException('Package not found');
         }
@@ -120,28 +170,67 @@ export class PackageService {
             }
         }
 
-        return this.prisma.product.update({
+        // Build update data object with only provided fields
+        const updateData: any = {};
+        if (updatePackageDto.unitId !== undefined) {
+            updateData.unitId = updatePackageDto.unitId;
+        }
+        if (updatePackageDto.netWeight !== undefined) {
+            updateData.netWeight = updatePackageDto.netWeight;
+        }
+        if (updatePackageDto.grossWeight !== undefined) {
+            updateData.grossWeight = updatePackageDto.grossWeight;
+        }
+
+        // Update only the allowed fields
+        const updatedPackage = await this.prisma.product.update({
             where: { id },
-            data: updatePackageDto,
+            data: updateData,
             include: {
                 unit: true,
             },
         });
+
+        // Return only the relevant fields
+        return {
+            success: true,
+            message: 'Package updated successfully',
+            data: {
+                id: updatedPackage.id,
+                unitId: updatedPackage.unitId,
+                netWeight: updatedPackage.netWeight,
+                grossWeight: updatedPackage.grossWeight,
+                unit: updatedPackage.unit,
+                createdAt: updatedPackage.createdAt,
+                updatedAt: updatedPackage.updatedAt,
+            },
+        };
     }
 
     async remove(id: number) {
         // Check if package exists
-        const existingPackage = await this.findOne(id);
+        const existingPackage = await this.prisma.product.findFirst({
+            where: {
+                id,
+                deletedAt: null,
+            },
+        });
+
         if (!existingPackage) {
             throw new NotFoundException('Package not found');
         }
 
         // Soft delete by setting deletedAt
-        return this.prisma.product.update({
+        await this.prisma.product.update({
             where: { id },
             data: {
                 deletedAt: new Date(),
             },
         });
+
+        return {
+            success: true,
+            message: 'Package deleted successfully',
+        };
     }
 }

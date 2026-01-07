@@ -1,28 +1,18 @@
-import { IsNotEmpty, IsInt, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsInt, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreatePackageDto {
-    @ApiProperty({ description: 'Package name' })
-    @IsNotEmpty()
-    @IsString()
-    name: string;
-
-    @ApiProperty({ description: 'HSN/SAC code' })
-    @IsNotEmpty()
-    @IsString()
-    hsnSac: string;
-
-    @ApiProperty()
+    @ApiProperty({ description: 'Unit ID' })
     @IsNotEmpty()
     @IsInt()
     unitId: number;
 
-    @ApiProperty()
+    @ApiProperty({ description: 'Net weight' })
     @IsNotEmpty()
     @IsNumber()
     netWeight: number;
 
-    @ApiProperty()
+    @ApiProperty({ description: 'Gross weight' })
     @IsNotEmpty()
     @IsNumber()
     grossWeight: number;

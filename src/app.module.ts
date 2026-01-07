@@ -23,6 +23,8 @@ import { CurrencyModule } from './modules/settings/currency/currency.module';
 import { BankDetailModule } from './modules/settings/bank-detail/bank-detail.module';
 import { QualitySpeculationModule } from './modules/settings/quality-speculation/quality-speculation.module';
 import { ProductModule } from './modules/settings/product/product.module';
+import { MaterialModule } from './modules/settings/material/material.module';
+import { QuotationModule } from './modules/quotation/quotation.module';
 import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
@@ -50,6 +52,8 @@ import { UploadModule } from './modules/upload/upload.module';
     BankDetailModule,
     QualitySpeculationModule,
     ProductModule,
+    MaterialModule,
+    QuotationModule,
     UploadModule,
   ],
   controllers: [AppController],

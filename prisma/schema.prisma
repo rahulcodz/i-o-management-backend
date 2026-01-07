@@ -88,6 +88,7 @@ model Unit {
   default    Boolean  @default(false)
   deletedAt  DateTime?
   products   Product[]
+  quotationProducts QuotationProduct[] @relation("QuotationProductUnit")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
@@ -95,10 +96,10 @@ model Unit {
 model Product {
   id              Int      @id @default(autoincrement())
   // Product Detail fields
-  name            String
+  name            String?
   gst             String?
   description     String?  @db.Text
-  hsnSac          String
+  hsnSac          String?
   image           String?
   inventoryType   String?  @default("Finished Goods")
   // Advanced fields
@@ -115,6 +116,7 @@ model Product {
   variants        Json?    // Array of { variantName: string, variantImage: string }
   // Scheme details stored as JSON array
   schemes         Json?    // Array of { name: string, unitId: number, percentageValue: number, percentageUnit: string, capValue: number, capUnit: string }
+  quotationProducts QuotationProduct[] @relation("QuotationProductProduct")
   deletedAt       DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -124,6 +126,7 @@ model PackageType {
   id            Int      @id @default(autoincrement())
   packageType   String
   markAsDefault Boolean  @default(false)
+  quotationProducts QuotationProduct[] @relation("QuotationProductPackageType")
   deletedAt     DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -185,4 +188,57 @@ model QualitySpeculation {
   deletedAt     DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model Material {
+  id            Int      @id @default(autoincrement())
+  materialName  String
+  markAsDefault Boolean  @default(false)
+  quotationProducts QuotationProduct[] @relation("QuotationProductMaterial")
+  deletedAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Quotation {
+  id                Int      @id @default(autoincrement())
+  quotationNo       String   @unique
+  date              DateTime?
+  consigneeDetails  Json?    // { buyerOrderNo, orderDate, consigneeId, consigneeAddressId, notifyPartyId, otherNotifyPartyId, country, portId }
+  shipmentDetails   Json?    // Conditional based on salesBroker
+  salesBroker       Boolean  @default(false)
+  quotationProducts QuotationProduct[]
+  deletedAt         DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model QuotationProduct {
+  id              Int       @id @default(autoincrement())
+  quotationId     Int
+  quotation       Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  productId       Int?
+  product         Product?  @relation("QuotationProductProduct", fields: [productId], references: [id])
+  unitId          Int?
+  unit            Unit?     @relation("QuotationProductUnit", fields: [unitId], references: [id])
+  quantity        Float?
+  price           Float?
+  total           Float?   // Calculated: quantity * price
+  package         String?   // Package field
+  productDescription String? @db.Text
+  netWeight       Float?
+  grossWeight     Float?
+  totalPackages   Float?
+  packageTypeId   Int?
+  packageType     PackageType? @relation("QuotationProductPackageType", fields: [packageTypeId], references: [id])
+  qualitySpec     String?
+  materialId      Int?
+  material        Material? @relation("QuotationProductMaterial", fields: [materialId], references: [id])
+  marking         String?
+  markingFile     String?
+  totalNetWeight  Float?
+  totalGrossWeight Float?
+  deletedAt       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
