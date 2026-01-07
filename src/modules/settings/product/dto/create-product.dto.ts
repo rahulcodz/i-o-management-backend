@@ -15,19 +15,6 @@ export class ProductVariantDto {
     variantImage?: string;
 }
 
-// Custom Field DTO
-export class CustomFieldDto {
-    @ApiPropertyOptional({ description: 'Custom field name' })
-    @IsOptional()
-    @IsString()
-    fieldName?: string;
-
-    @ApiPropertyOptional({ description: 'Custom field value' })
-    @IsOptional()
-    @IsString()
-    value?: string;
-}
-
 // Scheme Detail DTO
 export class ProductSchemeDto {
     @ApiPropertyOptional({ description: 'Scheme name (e.g., Drawback, RoDTEP, RoSCTL)' })
@@ -35,10 +22,10 @@ export class ProductSchemeDto {
     @IsString()
     name?: string;
 
-    @ApiPropertyOptional({ description: 'Unit for the scheme' })
+    @ApiPropertyOptional({ description: 'Unit ID for the scheme (references Unit model)' })
     @IsOptional()
-    @IsString()
-    unit?: string;
+    @IsInt()
+    unitId?: number;
 
     @ApiPropertyOptional({ description: 'Percentage value', default: 0 })
     @IsOptional()
@@ -68,10 +55,10 @@ export class CreateProductDto {
     @IsString()
     name: string;
 
-    @ApiPropertyOptional({ description: 'GST percentage', default: 0 })
+    @ApiPropertyOptional({ description: 'GST percentage as string', default: '0' })
     @IsOptional()
-    @IsNumber()
-    gst?: number;
+    @IsString()
+    gst?: string;
 
     @ApiPropertyOptional({ description: 'Product description (rich text)' })
     @IsOptional()
@@ -140,13 +127,6 @@ export class CreateProductDto {
     @IsOptional()
     @IsNumber()
     sellPrice?: number;
-
-    @ApiPropertyOptional({ description: 'Custom fields as key-value pairs', type: [CustomFieldDto] })
-    @IsOptional()
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => CustomFieldDto)
-    customFields?: CustomFieldDto[];
 
     // Scheme Details
     @ApiPropertyOptional({ description: 'Product schemes', type: [ProductSchemeDto] })

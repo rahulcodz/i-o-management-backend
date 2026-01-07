@@ -22,12 +22,37 @@ export class ProductService {
             throw new BadRequestException('Unit not found or has been deleted');
         }
 
+        // Validate unitId in schemes if provided
+        if (createProductDto.schemes && createProductDto.schemes.length > 0) {
+            const schemeUnitIds = createProductDto.schemes
+                .map(scheme => scheme.unitId)
+                .filter((id): id is number => id !== undefined);
+
+            if (schemeUnitIds.length > 0) {
+                const schemeUnits = await this.prisma.unit.findMany({
+                    where: {
+                        id: { in: schemeUnitIds },
+                        deletedAt: null,
+                    },
+                });
+
+                const foundUnitIds = new Set(schemeUnits.map(u => u.id));
+                const missingUnitIds = schemeUnitIds.filter(id => !foundUnitIds.has(id));
+
+                if (missingUnitIds.length > 0) {
+                    throw new BadRequestException(
+                        `Scheme unit(s) not found or deleted: ${missingUnitIds.join(', ')}`
+                    );
+                }
+            }
+        }
+
         // Prepare data for Prisma
         const data: any = {
             name: createProductDto.name,
             hsnSac: createProductDto.hsnSac,
             unitId: createProductDto.unitId,
-            gst: createProductDto.gst ?? 0,
+            gst: createProductDto.gst,
             description: createProductDto.description,
             image: createProductDto.image,
             inventoryType: createProductDto.inventoryType ?? 'Finished Goods',
@@ -43,10 +68,6 @@ export class ProductService {
         // Convert arrays to JSON for Prisma
         if (createProductDto.variants && createProductDto.variants.length > 0) {
             data.variants = createProductDto.variants;
-        }
-
-        if (createProductDto.customFields && createProductDto.customFields.length > 0) {
-            data.customFields = createProductDto.customFields;
         }
 
         if (createProductDto.schemes && createProductDto.schemes.length > 0) {
@@ -149,6 +170,31 @@ export class ProductService {
             }
         }
 
+        // Validate unitId in schemes if provided
+        if (updateProductDto.schemes && updateProductDto.schemes.length > 0) {
+            const schemeUnitIds = updateProductDto.schemes
+                .map(scheme => scheme.unitId)
+                .filter((id): id is number => id !== undefined);
+
+            if (schemeUnitIds.length > 0) {
+                const schemeUnits = await this.prisma.unit.findMany({
+                    where: {
+                        id: { in: schemeUnitIds },
+                        deletedAt: null,
+                    },
+                });
+
+                const foundUnitIds = new Set(schemeUnits.map(u => u.id));
+                const missingUnitIds = schemeUnitIds.filter(id => !foundUnitIds.has(id));
+
+                if (missingUnitIds.length > 0) {
+                    throw new BadRequestException(
+                        `Scheme unit(s) not found or deleted: ${missingUnitIds.join(', ')}`
+                    );
+                }
+            }
+        }
+
         // Prepare data for Prisma
         const data: any = {};
 
@@ -171,10 +217,6 @@ export class ProductService {
         // Convert arrays to JSON for Prisma
         if (updateProductDto.variants !== undefined) {
             data.variants = updateProductDto.variants;
-        }
-
-        if (updateProductDto.customFields !== undefined) {
-            data.customFields = updateProductDto.customFields;
         }
 
         if (updateProductDto.schemes !== undefined) {

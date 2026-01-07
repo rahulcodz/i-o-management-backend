@@ -96,7 +96,7 @@ model Product {
   id              Int      @id @default(autoincrement())
   // Product Detail fields
   name            String
-  gst             Float?   @default(0)
+  gst             String?
   description     String?  @db.Text
   hsnSac          String
   image           String?
@@ -111,11 +111,10 @@ model Product {
   dimensionWidth  Float?
   dimensionHeight Float?
   sellPrice       Float?
-  customFields    Json?    // Array of { fieldName: string, value: string }
   // Variants stored as JSON array
   variants        Json?    // Array of { variantName: string, variantImage: string }
   // Scheme details stored as JSON array
-  schemes         Json?    // Array of { name: string, unit: string, percentageValue: number, percentageUnit: string, capValue: number, capUnit: string }
+  schemes         Json?    // Array of { name: string, unitId: number, percentageValue: number, percentageUnit: string, capValue: number, capUnit: string }
   deletedAt       DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

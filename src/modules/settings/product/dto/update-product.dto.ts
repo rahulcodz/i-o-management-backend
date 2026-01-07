@@ -1,7 +1,7 @@
 import { IsOptional, IsString, IsNumber, IsInt, IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { ProductVariantDto, CustomFieldDto, ProductSchemeDto } from './create-product.dto';
+import { ProductVariantDto, ProductSchemeDto } from './create-product.dto';
 
 export class UpdateProductDto {
     // Product Detail fields
@@ -10,10 +10,10 @@ export class UpdateProductDto {
     @IsString()
     name?: string;
 
-    @ApiPropertyOptional({ description: 'GST percentage' })
+    @ApiPropertyOptional({ description: 'GST percentage as string' })
     @IsOptional()
-    @IsNumber()
-    gst?: number;
+    @IsString()
+    gst?: string;
 
     @ApiPropertyOptional({ description: 'Product description (rich text)' })
     @IsOptional()
@@ -82,13 +82,6 @@ export class UpdateProductDto {
     @IsOptional()
     @IsNumber()
     sellPrice?: number;
-
-    @ApiPropertyOptional({ description: 'Custom fields as key-value pairs', type: [CustomFieldDto] })
-    @IsOptional()
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => CustomFieldDto)
-    customFields?: CustomFieldDto[];
 
     // Scheme Details
     @ApiPropertyOptional({ description: 'Product schemes', type: [ProductSchemeDto] })
