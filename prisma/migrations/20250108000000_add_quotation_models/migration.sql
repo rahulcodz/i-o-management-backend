@@ -1,2 +1,0 @@
--- This migration was already applied to the database
--- Placeholder file to allow database reset

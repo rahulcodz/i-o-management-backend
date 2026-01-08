@@ -6,6 +6,11 @@ import { ShipmentDetailsDto } from './shipment-details.dto';
 import { ProductDetailsDto } from './product-details.dto';
 
 export class UpdateQuotationDto {
+    @ApiPropertyOptional({ description: 'Quotation Number (must be unique)' })
+    @IsOptional()
+    @IsString()
+    quotationNumber?: string;
+
     @ApiPropertyOptional({ description: 'Quotation Date' })
     @IsOptional()
     @IsDateString()
@@ -27,6 +32,11 @@ export class UpdateQuotationDto {
     @IsOptional()
     @IsBoolean()
     salesBroker?: boolean;
+
+    @ApiPropertyOptional({ description: 'Remark' })
+    @IsOptional()
+    @IsString()
+    remark?: string;
 
     @ApiPropertyOptional({ description: 'Product Details Array', type: [ProductDetailsDto] })
     @IsOptional()

@@ -23,8 +23,17 @@ export class UnitService {
             });
         }
 
+        const createData: any = {
+            orderUnit: createUnitDto.orderUnit,
+            default: createUnitDto.default,
+        };
+        
+        if (createUnitDto.advanced) {
+            createData.advanced = createUnitDto.advanced;
+        }
+
         return this.prisma.unit.create({
-            data: createUnitDto,
+            data: createData,
         });
     }
 
@@ -106,9 +115,27 @@ export class UnitService {
             });
         }
 
+        const updateData: any = {};
+        
+        if (updateUnitDto.orderUnit !== undefined) {
+            updateData.orderUnit = updateUnitDto.orderUnit;
+        }
+        
+        if (updateUnitDto.default !== undefined) {
+            updateData.default = updateUnitDto.default;
+        }
+        
+        if (updateUnitDto.advanced !== undefined) {
+            if (updateUnitDto.advanced) {
+                updateData.advanced = updateUnitDto.advanced;
+            } else {
+                updateData.advanced = Prisma.JsonNull;
+            }
+        }
+
         return this.prisma.unit.update({
             where: { id },
-            data: updateUnitDto,
+            data: updateData,
         });
     }
 

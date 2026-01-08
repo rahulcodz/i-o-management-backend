@@ -185,8 +185,13 @@ export class QuotationService {
     }
 
     async create(createQuotationDto: CreateQuotationDto) {
-        // Generate quotation number
-        const quotationNo = await this.generateQuotationNo();
+        // Validate quotation number uniqueness
+        const existing = await this.prisma.quotation.findUnique({
+            where: { quotationNo: createQuotationDto.quotationNumber },
+        });
+        if (existing) {
+            throw new BadRequestException(`Quotation number "${createQuotationDto.quotationNumber}" already exists`);
+        }
 
         // Validate consignee details
         await this.validateConsigneeDetails(createQuotationDto.consigneeDetails);
@@ -203,11 +208,12 @@ export class QuotationService {
             // Create quotation
             const quotation = await tx.quotation.create({
                 data: {
-                    quotationNo,
+                    quotationNo: createQuotationDto.quotationNumber,
                     date: createQuotationDto.date ? new Date(createQuotationDto.date) : null,
                     consigneeDetails: createQuotationDto.consigneeDetails as any,
                     shipmentDetails: createQuotationDto.shipmentDetails as any,
                     salesBroker,
+                    remark: createQuotationDto.remark,
                 },
             });
 
@@ -354,10 +360,26 @@ export class QuotationService {
             await this.validateProductDetails(updateQuotationDto.productDetails);
         }
 
+        // Validate quotation number uniqueness if being updated
+        if (updateQuotationDto.quotationNumber) {
+            if (updateQuotationDto.quotationNumber !== existingQuotation.quotationNo) {
+                const existing = await this.prisma.quotation.findUnique({
+                    where: { quotationNo: updateQuotationDto.quotationNumber },
+                });
+                if (existing) {
+                    throw new BadRequestException(`Quotation number "${updateQuotationDto.quotationNumber}" already exists`);
+                }
+            }
+        }
+
         // Update quotation with transaction
         return this.prisma.$transaction(async (tx) => {
             // Prepare update data
             const updateData: any = {};
+
+            if (updateQuotationDto.quotationNumber !== undefined) {
+                updateData.quotationNo = updateQuotationDto.quotationNumber;
+            }
 
             if (updateQuotationDto.date !== undefined) {
                 updateData.date = updateQuotationDto.date ? new Date(updateQuotationDto.date) : null;
@@ -373,6 +395,10 @@ export class QuotationService {
 
             if (updateQuotationDto.salesBroker !== undefined) {
                 updateData.salesBroker = updateQuotationDto.salesBroker;
+            }
+
+            if (updateQuotationDto.remark !== undefined) {
+                updateData.remark = updateQuotationDto.remark;
             }
 
             // Update quotation

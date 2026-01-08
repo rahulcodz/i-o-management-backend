@@ -1,5 +1,7 @@
-import { IsOptional, IsString, IsBoolean } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsString, IsBoolean, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { OptionalAdvancedDto } from './optional-advanced.dto';
 
 export class UpdateUnitDto {
     @ApiProperty({ required: false })
@@ -11,4 +13,10 @@ export class UpdateUnitDto {
     @IsOptional()
     @IsBoolean()
     default?: boolean;
+
+    @ApiPropertyOptional({ description: 'Advanced fields', type: OptionalAdvancedDto })
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => OptionalAdvancedDto)
+    advanced?: OptionalAdvancedDto;
 }

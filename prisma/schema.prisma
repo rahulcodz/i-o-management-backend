@@ -86,6 +86,7 @@ model Unit {
   id         Int      @id @default(autoincrement())
   orderUnit  String
   default    Boolean  @default(false)
+  advanced   Json?    // { packagingUnit: string, weight: number, note: string }
   deletedAt  DateTime?
   products   Product[]
   quotationProducts QuotationProduct[] @relation("QuotationProductUnit")
@@ -207,6 +208,7 @@ model Quotation {
   consigneeDetails  Json?    // { buyerOrderNo, orderDate, consigneeId, consigneeAddressId, notifyPartyId, otherNotifyPartyId, country, portId }
   shipmentDetails   Json?    // Conditional based on salesBroker
   salesBroker       Boolean  @default(false)
+  remark            String?
   quotationProducts QuotationProduct[]
   deletedAt         DateTime?
   createdAt         DateTime @default(now())
