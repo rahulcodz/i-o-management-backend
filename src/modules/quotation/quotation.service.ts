@@ -309,6 +309,182 @@ export class QuotationService {
         };
     }
 
+    /**
+     * Enrich quotation with relational data from consignee and shipment details
+     */
+    private async enrichQuotationData(quotation: any) {
+        const enriched = { ...quotation };
+        const consigneeDetails = quotation.consigneeDetails as any;
+        const shipmentDetails = quotation.shipmentDetails as any;
+
+        // Enrich consignee details
+        if (consigneeDetails) {
+            const enrichedConsignee: any = { ...consigneeDetails };
+
+            // Fetch consignee customer
+            if (consigneeDetails.consigneeId) {
+                const consignee = await this.prisma.customer.findFirst({
+                    where: { id: consigneeDetails.consigneeId, deletedAt: null },
+                });
+                if (consignee) {
+                    enrichedConsignee.consignee = {
+                        id: consignee.id,
+                        customerName: consignee.customerName,
+                        email: consignee.email,
+                        country: consignee.country,
+                        company: consignee.company,
+                        addresses: consignee.addresses,
+                    };
+                    // Get specific address if addressId is provided
+                    if (consigneeDetails.consigneeAddressId && consignee.addresses) {
+                        const addresses = consignee.addresses as any[];
+                        const address = addresses.find((addr: any, index: number) => 
+                            index === consigneeDetails.consigneeAddressId - 1
+                        );
+                        if (address) {
+                            enrichedConsignee.consigneeAddress = address;
+                        }
+                    }
+                }
+            }
+
+            // Fetch notify party customer
+            if (consigneeDetails.notifyPartyId) {
+                const notifyParty = await this.prisma.customer.findFirst({
+                    where: { id: consigneeDetails.notifyPartyId, deletedAt: null },
+                });
+                if (notifyParty) {
+                    enrichedConsignee.notifyParty = {
+                        id: notifyParty.id,
+                        customerName: notifyParty.customerName,
+                        email: notifyParty.email,
+                        country: notifyParty.country,
+                        company: notifyParty.company,
+                        addresses: notifyParty.addresses,
+                    };
+                }
+            }
+
+            // Fetch other notify party customer
+            if (consigneeDetails.otherNotifyPartyId) {
+                const otherNotifyParty = await this.prisma.customer.findFirst({
+                    where: { id: consigneeDetails.otherNotifyPartyId, deletedAt: null },
+                });
+                if (otherNotifyParty) {
+                    enrichedConsignee.otherNotifyParty = {
+                        id: otherNotifyParty.id,
+                        customerName: otherNotifyParty.customerName,
+                        email: otherNotifyParty.email,
+                        country: otherNotifyParty.country,
+                        company: otherNotifyParty.company,
+                        addresses: otherNotifyParty.addresses,
+                    };
+                }
+            }
+
+            // Fetch port
+            if (consigneeDetails.portId) {
+                const port = await this.prisma.port.findFirst({
+                    where: { id: consigneeDetails.portId, deletedAt: null },
+                });
+                if (port) {
+                    enrichedConsignee.port = {
+                        id: port.id,
+                        portName: port.portName,
+                        portCode: port.portCode,
+                        country: port.country,
+                    };
+                }
+            }
+
+            enriched.consigneeDetails = enrichedConsignee;
+        }
+
+        // Enrich shipment details
+        if (shipmentDetails) {
+            const enrichedShipment: any = { ...shipmentDetails };
+
+            // Fetch currency
+            if (shipmentDetails.currencyId) {
+                const currency = await this.prisma.currency.findFirst({
+                    where: { id: shipmentDetails.currencyId, deletedAt: null },
+                });
+                if (currency) {
+                    enrichedShipment.currency = {
+                        id: currency.id,
+                        currencyName: currency.currencyName,
+                        symbol: currency.symbol,
+                        words: currency.words,
+                    };
+                }
+            }
+
+            // Fetch bank detail
+            if (shipmentDetails.bankId) {
+                const bank = await this.prisma.bankDetail.findFirst({
+                    where: { id: shipmentDetails.bankId, deletedAt: null },
+                });
+                if (bank) {
+                    enrichedShipment.bank = {
+                        id: bank.id,
+                        bankName: bank.bankName,
+                        accountNo: bank.accountNo,
+                        swiftCode: bank.swiftCode,
+                        beneficiaryName: bank.beneficiaryName,
+                        accountType: bank.accountType,
+                    };
+                }
+            }
+
+            // Fetch shipment term
+            if (shipmentDetails.shipmentTermId) {
+                const shipmentTerm = await this.prisma.shipmentTerm.findFirst({
+                    where: { id: shipmentDetails.shipmentTermId, deletedAt: null },
+                });
+                if (shipmentTerm) {
+                    enrichedShipment.shipmentTerm = {
+                        id: shipmentTerm.id,
+                        name: shipmentTerm.name,
+                        term: shipmentTerm.term,
+                    };
+                }
+            }
+
+            // Fetch payment term
+            if (shipmentDetails.paymentTermId) {
+                const paymentTerm = await this.prisma.paymentTerm.findFirst({
+                    where: { id: shipmentDetails.paymentTermId, deletedAt: null },
+                });
+                if (paymentTerm) {
+                    enrichedShipment.paymentTerm = {
+                        id: paymentTerm.id,
+                        name: paymentTerm.name,
+                        term: paymentTerm.term,
+                    };
+                }
+            }
+
+            // Fetch salesperson
+            if (shipmentDetails.salespersonId) {
+                const salesperson = await this.prisma.user.findUnique({
+                    where: { id: shipmentDetails.salespersonId },
+                });
+                if (salesperson) {
+                    enrichedShipment.salesperson = {
+                        id: salesperson.id,
+                        name: salesperson.name,
+                        email: salesperson.email,
+                        mobile: salesperson.mobile,
+                    };
+                }
+            }
+
+            enriched.shipmentDetails = enrichedShipment;
+        }
+
+        return enriched;
+    }
+
     async findOne(id: number) {
         const quotation = await this.prisma.quotation.findFirst({
             where: {
@@ -331,7 +507,8 @@ export class QuotationService {
             throw new NotFoundException('Quotation not found');
         }
 
-        return quotation;
+        // Enrich with relational data
+        return this.enrichQuotationData(quotation);
     }
 
     async update(id: number, updateQuotationDto: UpdateQuotationDto) {

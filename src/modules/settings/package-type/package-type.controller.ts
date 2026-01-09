@@ -7,10 +7,10 @@ import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger'
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { AdminGuard } from '../../auth/admin.guard';
 
-@ApiTags('Package Types')
+@ApiTags('Settings/Package Types')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, AdminGuard)
-@Controller('package-type')
+@Controller('settings/package-types')
 export class PackageTypeController {
     constructor(private readonly packageTypeService: PackageTypeService) { }
 
