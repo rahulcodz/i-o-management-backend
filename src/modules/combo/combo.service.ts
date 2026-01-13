@@ -3,6 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { QueryRoleComboDto } from './dto/query-role-combo.dto';
 import { QueryUserComboDto } from './dto/query-user-combo.dto';
 import { QueryOrganizationComboDto } from './dto/query-organization-combo.dto';
+import { QueryQuotationComboDto } from './dto/query-quotation-combo.dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -370,5 +371,38 @@ export class ComboService {
         }
 
         return countries;
+    }
+
+    async getQuotationsCombo(query: QueryQuotationComboDto) {
+        // Build where clause
+        const where: Prisma.QuotationWhereInput = {
+            deletedAt: null, // Only get non-deleted quotations
+        };
+
+        // Add search filter if provided
+        if (query.search) {
+            where.quotationNo = {
+                contains: query.search,
+                mode: 'insensitive',
+            };
+        }
+
+        // Fetch quotations
+        const quotations = await this.prisma.quotation.findMany({
+            where,
+            select: {
+                id: true,
+                quotationNo: true,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+
+        // Return quotations with id and quotationNo for combo
+        return quotations.map(quotation => ({
+            id: quotation.id,
+            label: quotation.quotationNo,
+        }));
     }
 }

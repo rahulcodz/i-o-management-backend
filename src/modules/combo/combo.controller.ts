@@ -4,6 +4,7 @@ import { QueryRoleComboDto } from './dto/query-role-combo.dto';
 import { QueryUserComboDto } from './dto/query-user-combo.dto';
 import { QueryOrganizationComboDto } from './dto/query-organization-combo.dto';
 import { QueryCountryComboDto } from './dto/query-country-combo.dto';
+import { QueryQuotationComboDto } from './dto/query-quotation-combo.dto';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -40,5 +41,12 @@ export class ComboController {
     @ApiQuery({ name: 'search', required: false, type: String, description: 'Search countries by name or ID' })
     getCountriesCombo(@Query() query: QueryCountryComboDto) {
         return this.comboService.getCountriesCombo(query);
+    }
+
+    @Get('quotations')
+    @ApiOperation({ summary: 'Get quotations combo - returns quotations with id and quotation number' })
+    @ApiQuery({ name: 'search', required: false, type: String, description: 'Search quotations by quotation number' })
+    getQuotationsCombo(@Query() query: QueryQuotationComboDto) {
+        return this.comboService.getQuotationsCombo(query);
     }
 }
