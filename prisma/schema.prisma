@@ -90,6 +90,7 @@ model Unit {
   deletedAt  DateTime?
   products   Product[]
   quotationProducts QuotationProduct[] @relation("QuotationProductUnit")
+  proformaInvoiceProducts ProformaInvoiceProduct[] @relation("ProformaInvoiceProductUnit")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
@@ -118,6 +119,7 @@ model Product {
   // Scheme details stored as JSON array
   schemes         Json?    // Array of { name: string, unitId: number, percentageValue: number, percentageUnit: string, capValue: number, capUnit: string }
   quotationProducts QuotationProduct[] @relation("QuotationProductProduct")
+  proformaInvoiceProducts ProformaInvoiceProduct[] @relation("ProformaInvoiceProductProduct")
   deletedAt       DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -128,6 +130,7 @@ model PackageType {
   packageType   String
   markAsDefault Boolean  @default(false)
   quotationProducts QuotationProduct[] @relation("QuotationProductPackageType")
+  proformaInvoiceProducts ProformaInvoiceProduct[] @relation("ProformaInvoiceProductPackageType")
   deletedAt     DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -196,6 +199,7 @@ model Material {
   materialName  String
   markAsDefault Boolean  @default(false)
   quotationProducts QuotationProduct[] @relation("QuotationProductMaterial")
+  proformaInvoiceProducts ProformaInvoiceProduct[] @relation("ProformaInvoiceProductMaterial")
   deletedAt     DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -210,6 +214,7 @@ model Quotation {
   salesBroker       Boolean  @default(false)
   remark            String?
   quotationProducts QuotationProduct[]
+  proformaInvoices  ProformaInvoice[]
   deletedAt         DateTime?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -284,4 +289,76 @@ model DomesticInvoiceConfiguration {
   deletedAt             DateTime?
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+}
+
+model ProformaInvoice {
+  id                        Int      @id @default(autoincrement())
+  quotationId               Int?
+  quotation                 Quotation? @relation(fields: [quotationId], references: [id])
+  piNo                      String   @unique
+  date                      DateTime?
+  consigneeDetails          Json?    // { consigneeId, consigneeAddressId, country, finalDestinationPortId }
+  shipmentDetails           Json?    // { countryOfOrigin, preCarriageBy, countryOfLoading, countryOfDischarge, portOfDischarge, currencyId, conversionRate, bankId, paymentTermId, shipmentTermId, shipmentPeriod, orderType }
+  shipmentModel             Json?    // { shipmentMode, ft20FCL, ft40FCL, ft40HC, ft20LCL, ft40LCL, dryBulk, liquidBulk, isoTank, flexiTank, totalNetWeight, totalGrossWeight, total, freight, freightIncludeInTotal, insurance, insuranceIncludeInTotal, grandTotal }
+  remarks                   String?  @db.Text
+  internalNote              String?  @db.Text
+  productionDate            DateTime?
+  productionExpiryDate      DateTime?
+  placeOfReceiptByPreCarrier String?
+  vesselFlightNo            String?
+  salesBroker               Boolean  @default(false)
+  palletised                Boolean  @default(false)
+  brokerage                 Float?
+  brokeragePercentage       Float?
+  soldBy                    String?
+  proformaInvoiceProducts   ProformaInvoiceProduct[]
+  proformaInvoiceContainers ProformaInvoiceContainer[]
+  deletedAt                 DateTime?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+}
+
+model ProformaInvoiceProduct {
+  id                Int       @id @default(autoincrement())
+  proformaInvoiceId Int
+  proformaInvoice   ProformaInvoice @relation(fields: [proformaInvoiceId], references: [id], onDelete: Cascade)
+  productId         Int?
+  product           Product?  @relation("ProformaInvoiceProductProduct", fields: [productId], references: [id])
+  unitId            Int?
+  unit              Unit?     @relation("ProformaInvoiceProductUnit", fields: [unitId], references: [id])
+  quantity          Float?
+  price             Float?
+  total             Float?    // Calculated: quantity * price
+  package           String?
+  productDescription String?  @db.Text
+  netWeight         Float?
+  grossWeight       Float?
+  totalPackages     Float?
+  packageTypeId     Int?
+  packageType       PackageType? @relation("ProformaInvoiceProductPackageType", fields: [packageTypeId], references: [id])
+  qualitySpec       String?
+  materialId        Int?
+  material          Material? @relation("ProformaInvoiceProductMaterial", fields: [materialId], references: [id])
+  marking           String?
+  markingFile       String?
+  deletedAt         DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model ProformaInvoiceContainer {
+  id                Int       @id @default(autoincrement())
+  proformaInvoiceId Int
+  proformaInvoice   ProformaInvoice @relation(fields: [proformaInvoiceId], references: [id], onDelete: Cascade)
+  containerNo       String?
+  lineSealNo        String?
+  rfidSealNo        String?
+  sizeType          String?
+  boxes             Int?
+  lotNo             String?
+  netWeight         Float?
+  grossWeight       Float?
+  deletedAt         DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
