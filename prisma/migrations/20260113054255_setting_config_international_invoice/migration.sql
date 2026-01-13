@@ -1,0 +1,30 @@
+-- CreateTable
+CREATE TABLE "InternationalInvoiceConfiguration" (
+    "id" SERIAL NOT NULL,
+    "pinCode" TEXT,
+    "declarationExport" TEXT NOT NULL,
+    "declarationDomestic" TEXT,
+    "invoiceSeriesSettingBasedOn" TEXT DEFAULT 'General Setting For All Invoice',
+    "piSeriesSettingBasedOn" TEXT DEFAULT 'General Setting For All PI',
+    "invoicePrefix" TEXT,
+    "invoiceStartFrom" INTEGER DEFAULT 0,
+    "invoiceSuffix" TEXT,
+    "piPrefix" TEXT,
+    "piStartFrom" INTEGER DEFAULT 0,
+    "piSuffix" TEXT,
+    "quotationPrefix" TEXT,
+    "quotationStartFrom" INTEGER DEFAULT 0,
+    "quotationSuffix" TEXT,
+    "poPrefix" TEXT,
+    "poStartFrom" INTEGER DEFAULT 0,
+    "poSuffix" TEXT,
+    "servicePoPrefix" TEXT,
+    "servicePoStartFrom" INTEGER DEFAULT 0,
+    "servicePoSuffix" TEXT,
+    "piInvoiceNoEditing" BOOLEAN NOT NULL DEFAULT true,
+    "deletedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "InternationalInvoiceConfiguration_pkey" PRIMARY KEY ("id")
+);

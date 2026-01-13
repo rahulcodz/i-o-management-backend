@@ -244,3 +244,44 @@ model QuotationProduct {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
+
+model InternationalInvoiceConfiguration {
+  id                        Int      @id @default(autoincrement())
+  pinCode                   String?
+  declarationExport         String
+  declarationDomestic       String?  @db.Text
+  invoiceSeriesSettingBasedOn String? @default("General Setting For All Invoice")
+  piSeriesSettingBasedOn    String? @default("General Setting For All PI")
+  invoicePrefix             String?
+  invoiceStartFrom          Int?     @default(0)
+  invoiceSuffix             String?
+  piPrefix                  String?
+  piStartFrom               Int?     @default(0)
+  piSuffix                  String?
+  quotationPrefix           String?
+  quotationStartFrom        Int?     @default(0)
+  quotationSuffix           String?
+  poPrefix                  String?
+  poStartFrom               Int?     @default(0)
+  poSuffix                  String?
+  servicePoPrefix           String?
+  servicePoStartFrom        Int?     @default(0)
+  servicePoSuffix           String?
+  piInvoiceNoEditing        Boolean  @default(true)
+  deletedAt                 DateTime?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+}
+
+model DomesticInvoiceConfiguration {
+  id                    Int      @id @default(autoincrement())
+  domesticInvoicePrefix String?
+  domesticInvoiceStartFrom Int?  @default(0)
+  domesticInvoiceSuffix String?
+  domesticPiPrefix      String?
+  domesticPiStartFrom   Int?     @default(0)
+  domesticPiSuffix      String?
+  deletedAt             DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
