@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateProformaInvoiceDto } from './dto/create-proforma-invoice.dto';
-import { UpdateProformaInvoiceDto } from './dto/update-proforma-invoice.dto';
-import { QueryProformaInvoiceDto } from './dto/query-proforma-invoice.dto';
+import { CreateInvoiceDto } from './dto/create-invoice.dto';
+import { UpdateInvoiceDto } from './dto/update-invoice.dto';
+import { QueryInvoiceDto } from './dto/query-invoice.dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
-export class ProformaInvoiceService {
+export class InvoiceService {
     constructor(private prisma: PrismaService) { }
 
     /**
@@ -127,19 +127,19 @@ export class ProformaInvoiceService {
         }
     }
 
-    async create(createProformaInvoiceDto: CreateProformaInvoiceDto) {
+    async create(createInvoiceDto: CreateInvoiceDto) {
         // Validate PI No uniqueness
         const existing = await this.prisma.invoice.findUnique({
-            where: { piNo: createProformaInvoiceDto.piNo },
+            where: { piNo: createInvoiceDto.piNo },
         });
         if (existing) {
-            throw new BadRequestException(`PI No "${createProformaInvoiceDto.piNo}" already exists`);
+            throw new BadRequestException(`PI No "${createInvoiceDto.piNo}" already exists`);
         }
 
         // Validate quotation if provided
-        if (createProformaInvoiceDto.quotationId) {
+        if (createInvoiceDto.quotationId) {
             const quotation = await this.prisma.quotation.findFirst({
-                where: { id: createProformaInvoiceDto.quotationId, deletedAt: null },
+                where: { id: createInvoiceDto.quotationId, deletedAt: null },
             });
             if (!quotation) {
                 throw new BadRequestException('Quotation not found');
@@ -147,46 +147,46 @@ export class ProformaInvoiceService {
         }
 
         // Validate consignee details
-        await this.validateConsigneeDetails(createProformaInvoiceDto.consigneeDetails);
+        await this.validateConsigneeDetails(createInvoiceDto.consigneeDetails);
 
         // Validate shipment details
-        await this.validateShipmentDetails(createProformaInvoiceDto.shipmentDetails);
+        await this.validateShipmentDetails(createInvoiceDto.shipmentDetails);
 
         // Validate product details
-        if (createProformaInvoiceDto.productDetails) {
-            await this.validateProductDetails(createProformaInvoiceDto.productDetails);
+        if (createInvoiceDto.productDetails) {
+            await this.validateProductDetails(createInvoiceDto.productDetails);
         }
 
-        // Create proforma invoice with transaction
+        // Create invoice with transaction
         return this.prisma.$transaction(async (tx) => {
-            // Create proforma invoice
-            const proformaInvoice = await tx.invoice.create({
+            // Create invoice
+            const invoice = await tx.invoice.create({
                 data: {
-                    quotationId: createProformaInvoiceDto.quotationId || null,
-                    piNo: createProformaInvoiceDto.piNo,
-                    date: createProformaInvoiceDto.date ? new Date(createProformaInvoiceDto.date) : null,
-                    isProformaInvoice: true, // Always set to true for proforma invoices
-                    consigneeDetails: createProformaInvoiceDto.consigneeDetails as any,
-                    shipmentDetails: createProformaInvoiceDto.shipmentDetails as any,
-                    shipmentModel: createProformaInvoiceDto.shipmentModel as any,
-                    remarks: createProformaInvoiceDto.remarks,
-                    internalNote: createProformaInvoiceDto.internalNote,
-                    productionDate: createProformaInvoiceDto.productionDate ? new Date(createProformaInvoiceDto.productionDate) : null,
-                    productionExpiryDate: createProformaInvoiceDto.productionExpiryDate ? new Date(createProformaInvoiceDto.productionExpiryDate) : null,
-                    placeOfReceiptByPreCarrier: createProformaInvoiceDto.placeOfReceiptByPreCarrier,
-                    vesselFlightNo: createProformaInvoiceDto.vesselFlightNo,
-                    salesBroker: createProformaInvoiceDto.salesBroker || false,
-                    palletised: createProformaInvoiceDto.palletised || false,
-                    brokerage: createProformaInvoiceDto.brokerage,
-                    brokeragePercentage: createProformaInvoiceDto.brokeragePercentage,
-                    soldBy: createProformaInvoiceDto.soldBy,
+                    quotationId: createInvoiceDto.quotationId || null,
+                    piNo: createInvoiceDto.piNo,
+                    date: createInvoiceDto.date ? new Date(createInvoiceDto.date) : null,
+                    isProformaInvoice: createInvoiceDto.isProformaInvoice || false,
+                    consigneeDetails: createInvoiceDto.consigneeDetails as any,
+                    shipmentDetails: createInvoiceDto.shipmentDetails as any,
+                    shipmentModel: createInvoiceDto.shipmentModel as any,
+                    remarks: createInvoiceDto.remarks,
+                    internalNote: createInvoiceDto.internalNote,
+                    productionDate: createInvoiceDto.productionDate ? new Date(createInvoiceDto.productionDate) : null,
+                    productionExpiryDate: createInvoiceDto.productionExpiryDate ? new Date(createInvoiceDto.productionExpiryDate) : null,
+                    placeOfReceiptByPreCarrier: createInvoiceDto.placeOfReceiptByPreCarrier,
+                    vesselFlightNo: createInvoiceDto.vesselFlightNo,
+                    salesBroker: createInvoiceDto.salesBroker || false,
+                    palletised: createInvoiceDto.palletised || false,
+                    brokerage: createInvoiceDto.brokerage,
+                    brokeragePercentage: createInvoiceDto.brokeragePercentage,
+                    soldBy: createInvoiceDto.soldBy,
                 },
             });
 
             // Create product details if provided
-            if (createProformaInvoiceDto.productDetails && createProformaInvoiceDto.productDetails.length > 0) {
-                const productData = createProformaInvoiceDto.productDetails.map((product) => ({
-                    invoiceId: proformaInvoice.id,
+            if (createInvoiceDto.productDetails && createInvoiceDto.productDetails.length > 0) {
+                const productData = createInvoiceDto.productDetails.map((product) => ({
+                    invoiceId: invoice.id,
                     productId: product.productId || null,
                     unitId: product.unitId || null,
                     quantity: product.quantity,
@@ -210,9 +210,9 @@ export class ProformaInvoiceService {
             }
 
             // Create container details if provided
-            if (createProformaInvoiceDto.containerDetails && createProformaInvoiceDto.containerDetails.length > 0) {
-                const containerData = createProformaInvoiceDto.containerDetails.map((container) => ({
-                    invoiceId: proformaInvoice.id,
+            if (createInvoiceDto.containerDetails && createInvoiceDto.containerDetails.length > 0) {
+                const containerData = createInvoiceDto.containerDetails.map((container) => ({
+                    invoiceId: invoice.id,
                     containerNo: container.containerNo,
                     lineSealNo: container.lineSealNo,
                     rfidSealNo: container.rfidSealNo,
@@ -228,9 +228,9 @@ export class ProformaInvoiceService {
                 });
             }
 
-            // Return proforma invoice with relations
+            // Return invoice with relations
             return tx.invoice.findUnique({
-                where: { id: proformaInvoice.id },
+                where: { id: invoice.id },
                 include: {
                     quotation: true,
                     invoiceProducts: {
@@ -247,14 +247,13 @@ export class ProformaInvoiceService {
         });
     }
 
-    async findAll(query: QueryProformaInvoiceDto) {
-        const { page = 1, limit = 10, search, quotationId, salesBroker, dateFrom, dateTo } = query;
+    async findAll(query: QueryInvoiceDto) {
+        const { page = 1, limit = 10, search, quotationId, salesBroker, isProformaInvoice, dateFrom, dateTo } = query;
         const skip = (page - 1) * limit;
 
         // Build where clause
         const where: Prisma.InvoiceWhereInput = {
-            deletedAt: null, // Only get non-deleted proforma invoices
-            isProformaInvoice: true, // Only get proforma invoices
+            deletedAt: null, // Only get non-deleted invoices
         };
 
         // Add search filter if provided
@@ -275,6 +274,11 @@ export class ProformaInvoiceService {
             where.salesBroker = salesBroker;
         }
 
+        // Add isProformaInvoice filter if provided
+        if (isProformaInvoice !== undefined) {
+            where.isProformaInvoice = isProformaInvoice;
+        }
+
         // Add date range filter if provided
         if (dateFrom || dateTo) {
             where.date = {};
@@ -290,7 +294,7 @@ export class ProformaInvoiceService {
         const total = await this.prisma.invoice.count({ where });
 
         // Get paginated results
-        const proformaInvoices = await this.prisma.invoice.findMany({
+        const invoices = await this.prisma.invoice.findMany({
             where,
             include: {
                 quotation: true,
@@ -310,7 +314,7 @@ export class ProformaInvoiceService {
         });
 
         return {
-            data: proformaInvoices,
+            data: invoices,
             meta: {
                 page,
                 limit,
@@ -321,11 +325,10 @@ export class ProformaInvoiceService {
     }
 
     async findOne(id: number) {
-        const proformaInvoice = await this.prisma.invoice.findFirst({
+        const invoice = await this.prisma.invoice.findFirst({
             where: {
                 id,
-                deletedAt: null, // Only get non-deleted proforma invoice
-                isProformaInvoice: true, // Only get proforma invoices
+                deletedAt: null, // Only get non-deleted invoice
             },
             include: {
                 quotation: true,
@@ -341,36 +344,36 @@ export class ProformaInvoiceService {
             },
         });
 
-        if (!proformaInvoice) {
-            throw new NotFoundException('Proforma invoice not found');
+        if (!invoice) {
+            throw new NotFoundException('Invoice not found');
         }
 
-        return proformaInvoice;
+        return invoice;
     }
 
-    async update(id: number, updateProformaInvoiceDto: UpdateProformaInvoiceDto) {
-        // Check if proforma invoice exists
-        const existingProformaInvoice = await this.findOne(id);
-        if (!existingProformaInvoice) {
-            throw new NotFoundException('Proforma invoice not found');
+    async update(id: number, updateInvoiceDto: UpdateInvoiceDto) {
+        // Check if invoice exists
+        const existingInvoice = await this.findOne(id);
+        if (!existingInvoice) {
+            throw new NotFoundException('Invoice not found');
         }
 
         // Validate PI No uniqueness if being updated
-        if (updateProformaInvoiceDto.piNo) {
-            if (updateProformaInvoiceDto.piNo !== existingProformaInvoice.piNo) {
+        if (updateInvoiceDto.piNo) {
+            if (updateInvoiceDto.piNo !== existingInvoice.piNo) {
                 const existing = await this.prisma.invoice.findUnique({
-                    where: { piNo: updateProformaInvoiceDto.piNo },
+                    where: { piNo: updateInvoiceDto.piNo },
                 });
                 if (existing) {
-                    throw new BadRequestException(`PI No "${updateProformaInvoiceDto.piNo}" already exists`);
+                    throw new BadRequestException(`PI No "${updateInvoiceDto.piNo}" already exists`);
                 }
             }
         }
 
         // Validate quotation if being updated
-        if (updateProformaInvoiceDto.quotationId) {
+        if (updateInvoiceDto.quotationId) {
             const quotation = await this.prisma.quotation.findFirst({
-                where: { id: updateProformaInvoiceDto.quotationId, deletedAt: null },
+                where: { id: updateInvoiceDto.quotationId, deletedAt: null },
             });
             if (!quotation) {
                 throw new BadRequestException('Quotation not found');
@@ -378,112 +381,113 @@ export class ProformaInvoiceService {
         }
 
         // Validate consignee details if being updated
-        if (updateProformaInvoiceDto.consigneeDetails) {
-            await this.validateConsigneeDetails(updateProformaInvoiceDto.consigneeDetails);
+        if (updateInvoiceDto.consigneeDetails) {
+            await this.validateConsigneeDetails(updateInvoiceDto.consigneeDetails);
         }
 
         // Validate shipment details if being updated
-        if (updateProformaInvoiceDto.shipmentDetails) {
-            await this.validateShipmentDetails(updateProformaInvoiceDto.shipmentDetails);
+        if (updateInvoiceDto.shipmentDetails) {
+            await this.validateShipmentDetails(updateInvoiceDto.shipmentDetails);
         }
 
         // Validate product details if being updated
-        if (updateProformaInvoiceDto.productDetails) {
-            await this.validateProductDetails(updateProformaInvoiceDto.productDetails);
+        if (updateInvoiceDto.productDetails) {
+            await this.validateProductDetails(updateInvoiceDto.productDetails);
         }
 
-        // Update proforma invoice with transaction
+        // Update invoice with transaction
         return this.prisma.$transaction(async (tx) => {
             // Prepare update data
             const updateData: any = {};
 
-            if (updateProformaInvoiceDto.quotationId !== undefined) {
-                updateData.quotationId = updateProformaInvoiceDto.quotationId;
+            if (updateInvoiceDto.quotationId !== undefined) {
+                updateData.quotationId = updateInvoiceDto.quotationId;
             }
 
-            if (updateProformaInvoiceDto.piNo !== undefined) {
-                updateData.piNo = updateProformaInvoiceDto.piNo;
+            if (updateInvoiceDto.piNo !== undefined) {
+                updateData.piNo = updateInvoiceDto.piNo;
             }
 
-            if (updateProformaInvoiceDto.date !== undefined) {
-                updateData.date = updateProformaInvoiceDto.date ? new Date(updateProformaInvoiceDto.date) : null;
+            if (updateInvoiceDto.date !== undefined) {
+                updateData.date = updateInvoiceDto.date ? new Date(updateInvoiceDto.date) : null;
             }
 
-            if (updateProformaInvoiceDto.consigneeDetails !== undefined) {
-                updateData.consigneeDetails = updateProformaInvoiceDto.consigneeDetails as any;
+            if (updateInvoiceDto.isProformaInvoice !== undefined) {
+                updateData.isProformaInvoice = updateInvoiceDto.isProformaInvoice;
             }
 
-            if (updateProformaInvoiceDto.shipmentDetails !== undefined) {
-                updateData.shipmentDetails = updateProformaInvoiceDto.shipmentDetails as any;
+            if (updateInvoiceDto.consigneeDetails !== undefined) {
+                updateData.consigneeDetails = updateInvoiceDto.consigneeDetails as any;
             }
 
-            if (updateProformaInvoiceDto.shipmentModel !== undefined) {
-                updateData.shipmentModel = updateProformaInvoiceDto.shipmentModel as any;
+            if (updateInvoiceDto.shipmentDetails !== undefined) {
+                updateData.shipmentDetails = updateInvoiceDto.shipmentDetails as any;
             }
 
-            if (updateProformaInvoiceDto.remarks !== undefined) {
-                updateData.remarks = updateProformaInvoiceDto.remarks;
+            if (updateInvoiceDto.shipmentModel !== undefined) {
+                updateData.shipmentModel = updateInvoiceDto.shipmentModel as any;
             }
 
-            if (updateProformaInvoiceDto.internalNote !== undefined) {
-                updateData.internalNote = updateProformaInvoiceDto.internalNote;
+            if (updateInvoiceDto.remarks !== undefined) {
+                updateData.remarks = updateInvoiceDto.remarks;
             }
 
-            if (updateProformaInvoiceDto.productionDate !== undefined) {
-                updateData.productionDate = updateProformaInvoiceDto.productionDate ? new Date(updateProformaInvoiceDto.productionDate) : null;
+            if (updateInvoiceDto.internalNote !== undefined) {
+                updateData.internalNote = updateInvoiceDto.internalNote;
             }
 
-            if (updateProformaInvoiceDto.productionExpiryDate !== undefined) {
-                updateData.productionExpiryDate = updateProformaInvoiceDto.productionExpiryDate ? new Date(updateProformaInvoiceDto.productionExpiryDate) : null;
+            if (updateInvoiceDto.productionDate !== undefined) {
+                updateData.productionDate = updateInvoiceDto.productionDate ? new Date(updateInvoiceDto.productionDate) : null;
             }
 
-            if (updateProformaInvoiceDto.placeOfReceiptByPreCarrier !== undefined) {
-                updateData.placeOfReceiptByPreCarrier = updateProformaInvoiceDto.placeOfReceiptByPreCarrier;
+            if (updateInvoiceDto.productionExpiryDate !== undefined) {
+                updateData.productionExpiryDate = updateInvoiceDto.productionExpiryDate ? new Date(updateInvoiceDto.productionExpiryDate) : null;
             }
 
-            if (updateProformaInvoiceDto.vesselFlightNo !== undefined) {
-                updateData.vesselFlightNo = updateProformaInvoiceDto.vesselFlightNo;
+            if (updateInvoiceDto.placeOfReceiptByPreCarrier !== undefined) {
+                updateData.placeOfReceiptByPreCarrier = updateInvoiceDto.placeOfReceiptByPreCarrier;
             }
 
-            if (updateProformaInvoiceDto.salesBroker !== undefined) {
-                updateData.salesBroker = updateProformaInvoiceDto.salesBroker;
+            if (updateInvoiceDto.vesselFlightNo !== undefined) {
+                updateData.vesselFlightNo = updateInvoiceDto.vesselFlightNo;
             }
 
-            if (updateProformaInvoiceDto.palletised !== undefined) {
-                updateData.palletised = updateProformaInvoiceDto.palletised;
+            if (updateInvoiceDto.salesBroker !== undefined) {
+                updateData.salesBroker = updateInvoiceDto.salesBroker;
             }
 
-            if (updateProformaInvoiceDto.brokerage !== undefined) {
-                updateData.brokerage = updateProformaInvoiceDto.brokerage;
+            if (updateInvoiceDto.palletised !== undefined) {
+                updateData.palletised = updateInvoiceDto.palletised;
             }
 
-            if (updateProformaInvoiceDto.brokeragePercentage !== undefined) {
-                updateData.brokeragePercentage = updateProformaInvoiceDto.brokeragePercentage;
+            if (updateInvoiceDto.brokerage !== undefined) {
+                updateData.brokerage = updateInvoiceDto.brokerage;
             }
 
-            if (updateProformaInvoiceDto.soldBy !== undefined) {
-                updateData.soldBy = updateProformaInvoiceDto.soldBy;
+            if (updateInvoiceDto.brokeragePercentage !== undefined) {
+                updateData.brokeragePercentage = updateInvoiceDto.brokeragePercentage;
             }
 
-            // Ensure isProformaInvoice is always true for proforma invoices
-            updateData.isProformaInvoice = true;
+            if (updateInvoiceDto.soldBy !== undefined) {
+                updateData.soldBy = updateInvoiceDto.soldBy;
+            }
 
-            // Update proforma invoice
+            // Update invoice
             await tx.invoice.update({
                 where: { id },
                 data: updateData,
             });
 
             // Update product details if provided
-            if (updateProformaInvoiceDto.productDetails) {
+            if (updateInvoiceDto.productDetails) {
                 // Delete existing products
                 await tx.invoiceProduct.deleteMany({
                     where: { invoiceId: id },
                 });
 
                 // Create new products
-                if (updateProformaInvoiceDto.productDetails.length > 0) {
-                    const productData = updateProformaInvoiceDto.productDetails.map((product) => ({
+                if (updateInvoiceDto.productDetails.length > 0) {
+                    const productData = updateInvoiceDto.productDetails.map((product) => ({
                         invoiceId: id,
                         productId: product.productId || null,
                         unitId: product.unitId || null,
@@ -509,15 +513,15 @@ export class ProformaInvoiceService {
             }
 
             // Update container details if provided
-            if (updateProformaInvoiceDto.containerDetails) {
+            if (updateInvoiceDto.containerDetails) {
                 // Delete existing containers
                 await tx.invoiceContainer.deleteMany({
                     where: { invoiceId: id },
                 });
 
                 // Create new containers
-                if (updateProformaInvoiceDto.containerDetails.length > 0) {
-                    const containerData = updateProformaInvoiceDto.containerDetails.map((container) => ({
+                if (updateInvoiceDto.containerDetails.length > 0) {
+                    const containerData = updateInvoiceDto.containerDetails.map((container) => ({
                         invoiceId: id,
                         containerNo: container.containerNo,
                         lineSealNo: container.lineSealNo,
@@ -535,7 +539,7 @@ export class ProformaInvoiceService {
                 }
             }
 
-            // Return updated proforma invoice with relations
+            // Return updated invoice with relations
             return tx.invoice.findUnique({
                 where: { id },
                 include: {
@@ -555,10 +559,10 @@ export class ProformaInvoiceService {
     }
 
     async remove(id: number) {
-        // Check if proforma invoice exists
-        const existingProformaInvoice = await this.findOne(id);
-        if (!existingProformaInvoice) {
-            throw new NotFoundException('Proforma invoice not found');
+        // Check if invoice exists
+        const existingInvoice = await this.findOne(id);
+        if (!existingInvoice) {
+            throw new NotFoundException('Invoice not found');
         }
 
         // Soft delete by setting deletedAt

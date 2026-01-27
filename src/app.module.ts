@@ -27,6 +27,7 @@ import { MaterialModule } from './modules/settings/material/material.module';
 import { ConfigurationModule } from './modules/settings/cofiguration/configuration.module';
 import { QuotationModule } from './modules/quotation/quotation.module';
 import { ProformaInvoiceModule } from './modules/proforma-invoice/proforma-invoice.module';
+import { InvoiceModule } from './modules/invoice/invoice.module';
 import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
@@ -58,6 +59,7 @@ import { UploadModule } from './modules/upload/upload.module';
     ConfigurationModule,
     QuotationModule,
     ProformaInvoiceModule,
+    InvoiceModule,
     UploadModule,
   ],
   controllers: [AppController],
