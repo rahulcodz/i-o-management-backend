@@ -25,9 +25,12 @@ import { QualitySpeculationModule } from './modules/settings/quality-speculation
 import { ProductModule } from './modules/settings/product/product.module';
 import { MaterialModule } from './modules/settings/material/material.module';
 import { ConfigurationModule } from './modules/settings/cofiguration/configuration.module';
+import { DocumentTemplateModule } from './modules/settings/document-template/document-template.module';
 import { QuotationModule } from './modules/quotation/quotation.module';
 import { ProformaInvoiceModule } from './modules/proforma-invoice/proforma-invoice.module';
 import { InvoiceModule } from './modules/invoice/invoice.module';
+import { PreShipmentModule } from './modules/pre-shipment/pre-shipment.module';
+import { BLDraftModule } from './modules/bl-draft/bl-draft.module';
 import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
@@ -57,9 +60,12 @@ import { UploadModule } from './modules/upload/upload.module';
     ProductModule,
     MaterialModule,
     ConfigurationModule,
+    DocumentTemplateModule,
     QuotationModule,
     ProformaInvoiceModule,
     InvoiceModule,
+    PreShipmentModule,
+    BLDraftModule,
     UploadModule,
   ],
   controllers: [AppController],

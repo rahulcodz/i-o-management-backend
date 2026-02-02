@@ -36,6 +36,8 @@ model User {
   organizationId Int?
   organization   Organization? @relation(fields: [organizationId], references: [id])
   managedCustomers Customer[]  @relation("CustomerManager")
+  documentTemplates DocumentTemplate[]
+  preShipments   PreShipment[] @relation("PreShipmentVendor")
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 }
@@ -67,6 +69,9 @@ model Customer {
   manager        User?        @relation("CustomerManager", fields: [managerId], references: [id])
   organizationId Int?
   organization   Organization? @relation(fields: [organizationId], references: [id])
+  blDraftsAsConsignee BLDraft[] @relation("BLDraftConsignee")
+  blDraftsAsNotifyBuyer BLDraft[] @relation("BLDraftNotifyBuyer")
+  blDraftsAsNotifyOtherParty BLDraft[] @relation("BLDraftNotifyOtherParty")
   deletedAt      DateTime?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
@@ -120,6 +125,7 @@ model Product {
   schemes         Json?    // Array of { name: string, unitId: number, percentageValue: number, percentageUnit: string, capValue: number, capUnit: string }
   quotationProducts QuotationProduct[] @relation("QuotationProductProduct")
   invoiceProducts InvoiceProduct[] @relation("InvoiceProductProduct")
+  preShipments    PreShipment[]
   deletedAt       DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -314,6 +320,8 @@ model Invoice {
   soldBy                    String?
   invoiceProducts           InvoiceProduct[]
   invoiceContainers         InvoiceContainer[]
+  preShipments              PreShipment[]
+  blDrafts                  BLDraft[]
   deletedAt                 DateTime?
   createdAt                 DateTime @default(now())
   updatedAt                 DateTime @updatedAt
@@ -362,4 +370,60 @@ model InvoiceContainer {
   deletedAt         DateTime?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+}
+
+model DocumentTemplate {
+  id            Int      @id @default(autoincrement())
+  documentName  String
+  documentContent String @db.Text
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  preShipments  PreShipment[]
+  deletedAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model PreShipment {
+  id                Int      @id @default(autoincrement())
+  invoiceId         Int
+  invoice           Invoice  @relation(fields: [invoiceId], references: [id])
+  documentTemplateId Int
+  documentTemplate  DocumentTemplate @relation(fields: [documentTemplateId], references: [id])
+  numberOfContainer Int
+  productId         Int
+  product           Product  @relation(fields: [productId], references: [id])
+  vendorId          Int?
+  vendor            User?    @relation("PreShipmentVendor", fields: [vendorId], references: [id])
+  grossWeight       Float?
+  netWeight         Float?
+  tareWeight        Float?
+  countryOfOrigin   String?
+  storage           String?
+  description       String?  @db.Text
+  deletedAt         DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model BLDraft {
+  id                  Int      @id @default(autoincrement())
+  invoiceId           Int
+  invoice             Invoice  @relation(fields: [invoiceId], references: [id])
+  invoiceDate         DateTime
+  shippingLine        String
+  bookingNumber       String
+  blType              String?
+  vesselNumber        String?
+  freight             String?
+  consigneeId         Int
+  consignee           Customer @relation("BLDraftConsignee", fields: [consigneeId], references: [id])
+  notifyBuyerId       Int?
+  notifyBuyer         Customer? @relation("BLDraftNotifyBuyer", fields: [notifyBuyerId], references: [id])
+  notifyOtherPartyId  Int?
+  notifyOtherParty    Customer? @relation("BLDraftNotifyOtherParty", fields: [notifyOtherPartyId], references: [id])
+  otherDetail         String
+  deletedAt           DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }
