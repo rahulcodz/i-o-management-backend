@@ -4,6 +4,9 @@ import { QueryRoleComboDto } from './dto/query-role-combo.dto';
 import { QueryUserComboDto } from './dto/query-user-combo.dto';
 import { QueryOrganizationComboDto } from './dto/query-organization-combo.dto';
 import { QueryQuotationComboDto } from './dto/query-quotation-combo.dto';
+import { QueryInvoiceComboDto } from './dto/query-invoice-combo.dto';
+import { QueryCustomerComboDto } from './dto/query-customer-combo.dto';
+import { QueryProductComboDto } from './dto/query-product-combo.dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -403,6 +406,106 @@ export class ComboService {
         return quotations.map(quotation => ({
             id: quotation.id,
             label: quotation.quotationNo,
+        }));
+    }
+
+    async getInvoicesCombo(query: QueryInvoiceComboDto) {
+        // Build where clause
+        const where: Prisma.InvoiceWhereInput = {
+            deletedAt: null, // Only get non-deleted invoices
+        };
+
+        // Add search filter if provided
+        if (query.search) {
+            where.piNo = {
+                contains: query.search,
+                mode: 'insensitive',
+            };
+        }
+
+        // Fetch invoices
+        const invoices = await this.prisma.invoice.findMany({
+            where,
+            select: {
+                id: true,
+                piNo: true,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+
+        // Return invoices with id and piNo for combo
+        return invoices.map(invoice => ({
+            id: invoice.id,
+            label: invoice.piNo,
+        }));
+    }
+
+    async getCustomersCombo(query: QueryCustomerComboDto) {
+        // Build where clause
+        const where: Prisma.CustomerWhereInput = {
+            deletedAt: null, // Only get non-deleted customers
+            isActive: true, // Only get active customers
+        };
+
+        // Add search filter if provided
+        if (query.search) {
+            where.customerName = {
+                contains: query.search,
+                mode: 'insensitive',
+            };
+        }
+
+        // Fetch customers
+        const customers = await this.prisma.customer.findMany({
+            where,
+            select: {
+                id: true,
+                customerName: true,
+            },
+            orderBy: {
+                customerName: 'asc',
+            },
+        });
+
+        // Return customers with id and customerName for combo
+        return customers.map(customer => ({
+            id: customer.id,
+            label: customer.customerName,
+        }));
+    }
+
+    async getProductsCombo(query: QueryProductComboDto) {
+        // Build where clause
+        const where: Prisma.ProductWhereInput = {
+            deletedAt: null, // Only get non-deleted products
+        };
+
+        // Add search filter if provided
+        if (query.search) {
+            where.name = {
+                contains: query.search,
+                mode: 'insensitive',
+            };
+        }
+
+        // Fetch products
+        const products = await this.prisma.product.findMany({
+            where,
+            select: {
+                id: true,
+                name: true,
+            },
+            orderBy: {
+                name: 'asc',
+            },
+        });
+
+        // Return products with id and name for combo
+        return products.map(product => ({
+            id: product.id,
+            label: product.name || `Product #${product.id}`,
         }));
     }
 }

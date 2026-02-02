@@ -126,6 +126,7 @@ model Product {
   quotationProducts QuotationProduct[] @relation("QuotationProductProduct")
   invoiceProducts InvoiceProduct[] @relation("InvoiceProductProduct")
   preShipments    PreShipment[]
+  coaSettings     COASetting[]
   deletedAt       DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -426,4 +427,35 @@ model BLDraft {
   deletedAt           DateTime?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+}
+
+model COAParameter {
+  id        Int      @id @default(autoincrement())
+  name      String
+  method    String?
+  limit     Float?
+  result    String?
+  unit      String?
+  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model COASetting {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  group     Json?    // Array of { name?: string, method?: string, result?: string }
+  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProductLabelParameter {
+  id           Int      @id @default(autoincrement())
+  parameterName String
+  defaultValue  String?
+  deletedAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

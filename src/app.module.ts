@@ -31,6 +31,8 @@ import { ProformaInvoiceModule } from './modules/proforma-invoice/proforma-invoi
 import { InvoiceModule } from './modules/invoice/invoice.module';
 import { PreShipmentModule } from './modules/pre-shipment/pre-shipment.module';
 import { BLDraftModule } from './modules/bl-draft/bl-draft.module';
+import { COASettingModule } from './modules/coa-setting/coa-setting.module';
+import { ProductLabelParameterModule } from './modules/product-label-parameter/product-label-parameter.module';
 import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
@@ -66,6 +68,8 @@ import { UploadModule } from './modules/upload/upload.module';
     InvoiceModule,
     PreShipmentModule,
     BLDraftModule,
+    COASettingModule,
+    ProductLabelParameterModule,
     UploadModule,
   ],
   controllers: [AppController],
