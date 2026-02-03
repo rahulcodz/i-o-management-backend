@@ -34,6 +34,8 @@ import { BLDraftModule } from './modules/bl-draft/bl-draft.module';
 import { COASettingModule } from './modules/coa-setting/coa-setting.module';
 import { ProductLabelParameterModule } from './modules/product-label-parameter/product-label-parameter.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { PackagingListModule } from './modules/packaging-list/packaging-list.module';
+import { PostShipmentModule } from './modules/post-shipment/post-shipment.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -71,6 +73,8 @@ import { UploadModule } from './modules/upload/upload.module';
     COASettingModule,
     ProductLabelParameterModule,
     UploadModule,
+    PackagingListModule,
+    PostShipmentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

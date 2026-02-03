@@ -126,6 +126,7 @@ model Product {
   quotationProducts QuotationProduct[] @relation("QuotationProductProduct")
   invoiceProducts InvoiceProduct[] @relation("InvoiceProductProduct")
   preShipments    PreShipment[]
+  postShipments   PostShipment[]
   coaSettings     COASetting[]
   deletedAt       DateTime?
   createdAt       DateTime @default(now())
@@ -323,6 +324,8 @@ model Invoice {
   invoiceContainers         InvoiceContainer[]
   preShipments              PreShipment[]
   blDrafts                  BLDraft[]
+  packagingLists            PackagingList[]
+  postShipments             PostShipment[]
   deletedAt                 DateTime?
   createdAt                 DateTime @default(now())
   updatedAt                 DateTime @updatedAt
@@ -455,6 +458,33 @@ model ProductLabelParameter {
   id           Int      @id @default(autoincrement())
   parameterName String
   defaultValue  String?
+  deletedAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model PackagingList {
+  id            Int      @id @default(autoincrement())
+  invoiceId     Int
+  invoice       Invoice  @relation(fields: [invoiceId], references: [id])
+  cartonCount   Int
+  cartonInfo    Json?    // Array of { from: string, to: string, length: number, breadth: number, height: number, grossWeight: number }
+  group         Json?    // Array of { batchNumber?: string, productId?: number, qtyInEachCarton?: string, numberOfPackenInEachCarton?: number, fromBox?: string, toBox?: string, fromCarton?: string, toCarton?: string, packedQty?: string, subPacketSize?: string, remark?: string, packageTypeId?: number }
+  isWoodenbox   Boolean  @default(false)
+  deletedAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model PostShipment {
+  id            Int      @id @default(autoincrement())
+  invoiceId     Int
+  invoice       Invoice  @relation(fields: [invoiceId], references: [id])
+  productId     Int
+  product       Product  @relation(fields: [productId], references: [id])
+  grade         String?
+  rawMaterial   String?
+  list          Json?    // Array of { name?: string, method?: string, value?: number, result?: string, unitId?: number }
   deletedAt     DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
