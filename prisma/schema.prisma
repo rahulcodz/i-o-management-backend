@@ -464,16 +464,19 @@ model ProductLabelParameter {
 }
 
 model PackagingList {
-  id            Int      @id @default(autoincrement())
-  invoiceId     Int
-  invoice       Invoice  @relation(fields: [invoiceId], references: [id])
-  cartonCount   Int
-  cartonInfo    Json?    // Array of { from: string, to: string, length: number, breadth: number, height: number, grossWeight: number }
-  group         Json?    // Array of { batchNumber?: string, productId?: number, qtyInEachCarton?: string, numberOfPackenInEachCarton?: number, fromBox?: string, toBox?: string, fromCarton?: string, toCarton?: string, packedQty?: string, subPacketSize?: string, remark?: string, packageTypeId?: number }
-  isWoodenbox   Boolean  @default(false)
-  deletedAt     DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                Int      @id @default(autoincrement())
+  invoiceId         Int
+  invoice           Invoice  @relation(fields: [invoiceId], references: [id])
+  cartonCount       Int
+  cartonInfo        Json?    // Array of { from: string, to: string, length: number, breadth: number, height: number, grossWeight: number }
+  group             Json?    // Array of { batchNumber?: string, productId?: number, qtyInEachCarton?: string, numberOfPackenInEachCarton?: number, fromBox?: string, toBox?: string, fromCarton?: string, toCarton?: string, packedQty?: string, subPacketSize?: string, remark?: string, packageTypeId?: number }
+  isWoodenbox       Boolean  @default(false)
+  woodenBoxCount    Int?
+  woodenBoxList     Json?    // Array of { boxNumber?: string, boxInfo?: string, dimLength?: number, dimHeight?: number, dimBreadth?: number }
+  boxLocationList   Json?    // Array of { boxFrom?: string, boxTo?: string, packedIn?: string, number?: string }
+  deletedAt         DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model PostShipment {

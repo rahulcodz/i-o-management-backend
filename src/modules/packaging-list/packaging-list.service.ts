@@ -47,6 +47,9 @@ export class PackagingListService {
                 cartonInfo: createPackagingListDto.cartonInfo || null,
                 group: createPackagingListDto.group || null,
                 isWoodenbox: createPackagingListDto.isWoodenbox,
+                woodenBoxCount: createPackagingListDto.woodenBoxCount || null,
+                woodenBoxList: createPackagingListDto.woodenBoxList || null,
+                boxLocationList: createPackagingListDto.boxLocationList || null,
             },
             include: {
                 invoice: true,

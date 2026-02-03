@@ -103,6 +103,58 @@ class GroupDto {
     packageTypeId?: number;
 }
 
+class WoodenBoxListItemDto {
+    @ApiPropertyOptional({ description: 'Box number' })
+    @IsOptional()
+    @IsString()
+    boxNumber?: string;
+
+    @ApiPropertyOptional({ description: 'Box info' })
+    @IsOptional()
+    @IsString()
+    boxInfo?: string;
+
+    @ApiPropertyOptional({ description: 'Dimension length' })
+    @IsOptional()
+    @Type(() => Number)
+    @IsNumber()
+    dimLength?: number;
+
+    @ApiPropertyOptional({ description: 'Dimension height' })
+    @IsOptional()
+    @Type(() => Number)
+    @IsNumber()
+    dimHeight?: number;
+
+    @ApiPropertyOptional({ description: 'Dimension breadth' })
+    @IsOptional()
+    @Type(() => Number)
+    @IsNumber()
+    dimBreadth?: number;
+}
+
+class BoxLocationListItemDto {
+    @ApiPropertyOptional({ description: 'Box from' })
+    @IsOptional()
+    @IsString()
+    boxFrom?: string;
+
+    @ApiPropertyOptional({ description: 'Box to' })
+    @IsOptional()
+    @IsString()
+    boxTo?: string;
+
+    @ApiPropertyOptional({ description: 'Packed in' })
+    @IsOptional()
+    @IsString()
+    packedIn?: string;
+
+    @ApiPropertyOptional({ description: 'Number' })
+    @IsOptional()
+    @IsString()
+    number?: string;
+}
+
 export class UpdatePackagingListDto {
     @ApiPropertyOptional({ description: 'Invoice ID' })
     @IsOptional()
@@ -135,4 +187,24 @@ export class UpdatePackagingListDto {
     @Type(() => Boolean)
     @IsBoolean()
     isWoodenbox?: boolean;
+
+    @ApiPropertyOptional({ description: 'Wooden Box Count' })
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    woodenBoxCount?: number;
+
+    @ApiPropertyOptional({ description: 'Wooden Box List', type: [WoodenBoxListItemDto] })
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => WoodenBoxListItemDto)
+    woodenBoxList?: WoodenBoxListItemDto[];
+
+    @ApiPropertyOptional({ description: 'Box Location List', type: [BoxLocationListItemDto] })
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => BoxLocationListItemDto)
+    boxLocationList?: BoxLocationListItemDto[];
 }
