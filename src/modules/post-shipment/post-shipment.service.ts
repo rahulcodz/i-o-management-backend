@@ -46,7 +46,7 @@ export class PostShipmentService {
                 productId: createPostShipmentDto.productId,
                 grade: createPostShipmentDto.grade || null,
                 rawMaterial: createPostShipmentDto.rawMaterial || null,
-                list: createPostShipmentDto.list || null,
+                list: (createPostShipmentDto.list as any) || Prisma.JsonNull,
             },
             include: {
                 invoice: true,
@@ -173,9 +173,16 @@ export class PostShipmentService {
             }
         }
 
+        const { invoiceId, productId, ...updateData } = updatePostShipmentDto;
+
         return this.prisma.postShipment.update({
             where: { id },
-            data: updatePostShipmentDto,
+            data: {
+                ...updateData,
+                list: updatePostShipmentDto.list !== undefined ? (updatePostShipmentDto.list as any) : undefined,
+                invoice: updatePostShipmentDto.invoiceId ? { connect: { id: updatePostShipmentDto.invoiceId } } : undefined,
+                product: updatePostShipmentDto.productId ? { connect: { id: updatePostShipmentDto.productId } } : undefined,
+            },
             include: {
                 invoice: true,
                 product: true,

@@ -44,8 +44,8 @@ export class PackagingListService {
             data: {
                 invoiceId: createPackagingListDto.invoiceId,
                 cartonCount: createPackagingListDto.cartonCount,
-                cartonInfo: createPackagingListDto.cartonInfo || null,
-                group: createPackagingListDto.group || null,
+                cartonInfo: (createPackagingListDto.cartonInfo as any) || Prisma.JsonNull,
+                group: (createPackagingListDto.group as any) || Prisma.JsonNull,
                 isWoodenbox: createPackagingListDto.isWoodenbox,
                 woodenBoxCount: createPackagingListDto.woodenBoxCount || null,
                 woodenBoxList: createPackagingListDto.woodenBoxList || null,
@@ -164,9 +164,16 @@ export class PackagingListService {
             }
         }
 
+        const { invoiceId, ...updateData } = updatePackagingListDto;
+
         return this.prisma.packagingList.update({
             where: { id },
-            data: updatePackagingListDto,
+            data: {
+                ...updateData,
+                cartonInfo: updatePackagingListDto.cartonInfo !== undefined ? (updatePackagingListDto.cartonInfo as any) : undefined,
+                group: updatePackagingListDto.group !== undefined ? (updatePackagingListDto.group as any) : undefined,
+                invoice: updatePackagingListDto.invoiceId ? { connect: { id: updatePackagingListDto.invoiceId } } : undefined,
+            },
             include: {
                 invoice: true,
             },
