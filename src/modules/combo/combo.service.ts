@@ -7,6 +7,7 @@ import { QueryQuotationComboDto } from './dto/query-quotation-combo.dto';
 import { QueryInvoiceComboDto } from './dto/query-invoice-combo.dto';
 import { QueryCustomerComboDto } from './dto/query-customer-combo.dto';
 import { QueryProductComboDto } from './dto/query-product-combo.dto';
+import { QueryVendorComboDto } from './dto/query-vendor-combo.dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -415,6 +416,11 @@ export class ComboService {
             deletedAt: null, // Only get non-deleted invoices
         };
 
+        // Filter by isProformaInvoice flag if provided
+        if (query.invoice !== undefined) {
+            where.isProformaInvoice = query.invoice;
+        }
+
         // Add search filter if provided
         if (query.search) {
             where.piNo = {
@@ -506,6 +512,41 @@ export class ComboService {
         return products.map(product => ({
             id: product.id,
             label: product.name || `Product #${product.id}`,
+        }));
+    }
+
+    async getVendorsCombo(query: QueryVendorComboDto) {
+        // Build where clause
+        const where: Prisma.VendorWhereInput = {
+            deletedAt: null, // Only get non-deleted vendors
+        };
+
+        // Add search filter if provided
+        if (query.search) {
+            where.OR = [
+                { name: { contains: query.search, mode: 'insensitive' } },
+                { category: { contains: query.search, mode: 'insensitive' } },
+                { gstin: { contains: query.search, mode: 'insensitive' } },
+                { state: { contains: query.search, mode: 'insensitive' } },
+            ];
+        }
+
+        // Fetch vendors
+        const vendors = await this.prisma.vendor.findMany({
+            where,
+            select: {
+                id: true,
+                name: true,
+            },
+            orderBy: {
+                name: 'asc',
+            },
+        });
+
+        // Return vendors with id and name for combo
+        return vendors.map(vendor => ({
+            id: vendor.id,
+            label: vendor.name,
         }));
     }
 }

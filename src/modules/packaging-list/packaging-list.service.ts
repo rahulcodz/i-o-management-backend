@@ -48,8 +48,8 @@ export class PackagingListService {
                 group: (createPackagingListDto.group as any) || Prisma.JsonNull,
                 isWoodenbox: createPackagingListDto.isWoodenbox,
                 woodenBoxCount: createPackagingListDto.woodenBoxCount || null,
-                woodenBoxList: createPackagingListDto.woodenBoxList || null,
-                boxLocationList: createPackagingListDto.boxLocationList || null,
+                woodenBoxList: (createPackagingListDto.woodenBoxList as any) || Prisma.JsonNull,
+                boxLocationList: (createPackagingListDto.boxLocationList as any) || Prisma.JsonNull,
             },
             include: {
                 invoice: true,
@@ -164,7 +164,7 @@ export class PackagingListService {
             }
         }
 
-        const { invoiceId, ...updateData } = updatePackagingListDto;
+        const { invoiceId, cartonInfo, group, woodenBoxList, boxLocationList, ...updateData } = updatePackagingListDto;
 
         return this.prisma.packagingList.update({
             where: { id },
@@ -172,6 +172,8 @@ export class PackagingListService {
                 ...updateData,
                 cartonInfo: updatePackagingListDto.cartonInfo !== undefined ? (updatePackagingListDto.cartonInfo as any) : undefined,
                 group: updatePackagingListDto.group !== undefined ? (updatePackagingListDto.group as any) : undefined,
+                woodenBoxList: updatePackagingListDto.woodenBoxList !== undefined ? (updatePackagingListDto.woodenBoxList as any) : undefined,
+                boxLocationList: updatePackagingListDto.boxLocationList !== undefined ? (updatePackagingListDto.boxLocationList as any) : undefined,
                 invoice: updatePackagingListDto.invoiceId ? { connect: { id: updatePackagingListDto.invoiceId } } : undefined,
             },
             include: {

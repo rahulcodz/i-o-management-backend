@@ -8,6 +8,7 @@ import { QueryQuotationComboDto } from './dto/query-quotation-combo.dto';
 import { QueryInvoiceComboDto } from './dto/query-invoice-combo.dto';
 import { QueryCustomerComboDto } from './dto/query-customer-combo.dto';
 import { QueryProductComboDto } from './dto/query-product-combo.dto';
+import { QueryVendorComboDto } from './dto/query-vendor-combo.dto';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -56,6 +57,7 @@ export class ComboController {
     @Get('invoices')
     @ApiOperation({ summary: 'Get invoices combo - returns invoices with id and PI No' })
     @ApiQuery({ name: 'search', required: false, type: String, description: 'Search invoices by PI No' })
+    @ApiQuery({ name: 'invoice', required: false, type: Boolean, description: 'Filter by invoice type: true for proforma invoices, false for regular invoices' })
     getInvoicesCombo(@Query() query: QueryInvoiceComboDto) {
         return this.comboService.getInvoicesCombo(query);
     }
@@ -72,5 +74,12 @@ export class ComboController {
     @ApiQuery({ name: 'search', required: false, type: String, description: 'Search products by name' })
     getProductsCombo(@Query() query: QueryProductComboDto) {
         return this.comboService.getProductsCombo(query);
+    }
+
+    @Get('vendors')
+    @ApiOperation({ summary: 'Get vendors combo - returns vendors with id and name' })
+    @ApiQuery({ name: 'search', required: false, type: String, description: 'Search vendors by name, category, GSTIN, or state' })
+    getVendorsCombo(@Query() query: QueryVendorComboDto) {
+        return this.comboService.getVendorsCombo(query);
     }
 }

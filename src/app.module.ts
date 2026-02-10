@@ -13,6 +13,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { OrganizationModule } from './modules/admin/organization/organization.module';
 import { ComboModule } from './modules/combo/combo.module';
 import { CustomersModule } from './modules/settings/customers/customers.module';
+import { VendorsModule } from './modules/settings/vendors/vendors.module';
 import { PortModule } from './modules/settings/port/port.module';
 import { UnitModule } from './modules/settings/unit/unit.module';
 import { PackageModule } from './modules/settings/package/package.module';
@@ -52,6 +53,7 @@ import { PostShipmentModule } from './modules/post-shipment/post-shipment.module
     OrganizationModule,
     ComboModule,
     CustomersModule,
+    VendorsModule,
     PortModule,
     UnitModule,
     PackageModule,
