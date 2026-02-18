@@ -261,7 +261,7 @@ export class QuotationService {
     }
 
     async findAll(query: QueryQuotationDto) {
-        const { page = 1, limit = 10, search } = query;
+        const { page = 1, limit = 10, search, consigneeId } = query;
         const skip = (page - 1) * limit;
 
         // Build where clause
@@ -274,6 +274,14 @@ export class QuotationService {
             where.quotationNo = {
                 contains: search,
                 mode: 'insensitive',
+            };
+        }
+
+        // Add consignee filter if provided
+        if (consigneeId) {
+            where.consigneeDetails = {
+                path: ['consigneeId'],
+                equals: consigneeId,
             };
         }
 

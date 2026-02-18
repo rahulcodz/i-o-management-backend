@@ -248,7 +248,7 @@ export class ProformaInvoiceService {
     }
 
     async findAll(query: QueryProformaInvoiceDto) {
-        const { page = 1, limit = 10, search, quotationId, salesBroker, dateFrom, dateTo } = query;
+        const { page = 1, limit = 10, search, quotationId, salesBroker, consigneeId, dateFrom, dateTo } = query;
         const skip = (page - 1) * limit;
 
         // Build where clause
@@ -273,6 +273,14 @@ export class ProformaInvoiceService {
         // Add sales broker filter if provided
         if (salesBroker !== undefined) {
             where.salesBroker = salesBroker;
+        }
+
+        // Add consignee filter if provided
+        if (consigneeId) {
+            where.consigneeDetails = {
+                path: ['consigneeId'],
+                equals: consigneeId,
+            };
         }
 
         // Add date range filter if provided

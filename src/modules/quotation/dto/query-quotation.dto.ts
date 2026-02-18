@@ -21,4 +21,10 @@ export class QueryQuotationDto {
     @IsOptional()
     @IsString()
     search?: string;
+
+    @ApiProperty({ required: false, description: 'Filter by consignee ID' })
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    consigneeId?: number;
 }

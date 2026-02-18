@@ -248,7 +248,7 @@ export class InvoiceService {
     }
 
     async findAll(query: QueryInvoiceDto) {
-        const { page = 1, limit = 10, search, quotationId, salesBroker, isProformaInvoice, dateFrom, dateTo } = query;
+        const { page = 1, limit = 10, search, quotationId, salesBroker, isProformaInvoice, consigneeId, dateFrom, dateTo } = query;
         const skip = (page - 1) * limit;
 
         // Build where clause
@@ -277,6 +277,14 @@ export class InvoiceService {
         // Add isProformaInvoice filter if provided
         if (isProformaInvoice !== undefined) {
             where.isProformaInvoice = isProformaInvoice;
+        }
+
+        // Add consignee filter if provided
+        if (consigneeId) {
+            where.consigneeDetails = {
+                path: ['consigneeId'],
+                equals: consigneeId,
+            };
         }
 
         // Add date range filter if provided

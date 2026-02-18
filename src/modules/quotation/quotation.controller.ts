@@ -25,6 +25,7 @@ export class QuotationController {
     @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number (default: 1)' })
     @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page (default: 10)' })
     @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by quotation number' })
+    @ApiQuery({ name: 'consigneeId', required: false, type: Number, description: 'Filter by consignee ID' })
     findAll(@Query() query: QueryQuotationDto) {
         return this.quotationService.findAll(query);
     }

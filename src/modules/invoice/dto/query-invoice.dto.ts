@@ -36,6 +36,12 @@ export class QueryInvoiceDto {
     @Type(() => Boolean)
     isProformaInvoice?: boolean;
 
+    @ApiPropertyOptional({ description: 'Filter by consignee ID' })
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    consigneeId?: number;
+
     @ApiPropertyOptional({ description: 'Filter by date from' })
     @IsOptional()
     @IsDateString()

@@ -29,6 +29,7 @@ export class InvoiceController {
     @ApiQuery({ name: 'salesBroker', required: false, type: Boolean, description: 'Filter by Sales Broker' })
     @ApiQuery({ name: 'isProformaInvoice', required: false, type: Boolean, description: 'Filter by Is Proforma Invoice' })
     @ApiQuery({ name: 'dateFrom', required: false, type: String, description: 'Filter by date from (YYYY-MM-DD)' })
+    @ApiQuery({ name: 'consigneeId', required: false, type: Number, description: 'Filter by consignee ID' })
     @ApiQuery({ name: 'dateTo', required: false, type: String, description: 'Filter by date to (YYYY-MM-DD)' })
     findAll(@Query() query: QueryInvoiceDto) {
         return this.invoiceService.findAll(query);
