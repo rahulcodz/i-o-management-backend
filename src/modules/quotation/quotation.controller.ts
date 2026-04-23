@@ -30,6 +30,12 @@ export class QuotationController {
         return this.quotationService.findAll(query);
     }
 
+    @Get('generate-number')
+    @ApiOperation({ summary: 'Get next auto-incremented quotation number based on settings configuration' })
+    getQuotationNumber() {
+        return this.quotationService.getNextQuotationNumber();
+    }
+
     @Get(':id')
     @ApiOperation({ summary: 'Get quotation by ID' })
     findOne(@Param('id') id: string) {

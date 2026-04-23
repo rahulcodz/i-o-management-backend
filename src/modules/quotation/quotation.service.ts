@@ -26,6 +26,50 @@ export class QuotationService {
     }
 
     /**
+     * Get next quotation number based on settings configuration
+     */
+    async getNextQuotationNumber(): Promise<{ quotationNumber: string }> {
+        const config = await this.prisma.internationalInvoiceConfiguration.findFirst({
+            where: { deletedAt: null },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        const prefix = config?.quotationPrefix ?? '';
+        const suffix = config?.quotationSuffix ?? '';
+        const startFrom = config?.quotationStartFrom ?? 1;
+
+        if (!prefix) {
+            return { quotationNumber: `${startFrom}` };
+        }
+
+        // Find all quotations that start with the prefix
+        const quotations = await this.prisma.quotation.findMany({
+            where: {
+                quotationNo: { startsWith: prefix },
+                deletedAt: null,
+            },
+            select: { quotationNo: true },
+        });
+
+        let maxNumber = startFrom - 1;
+
+        for (const q of quotations) {
+            // Strip prefix and suffix to extract numeric part
+            let numPart = q.quotationNo.slice(prefix.length);
+            if (suffix && numPart.endsWith(suffix)) {
+                numPart = numPart.slice(0, numPart.length - suffix.length);
+            }
+            const num = parseInt(numPart, 10);
+            if (!isNaN(num) && num > maxNumber) {
+                maxNumber = num;
+            }
+        }
+
+        const nextNumber = maxNumber + 1;
+        return { quotationNumber: `${prefix}${nextNumber}${suffix}` };
+    }
+
+    /**
      * Validate and prepare consignee details
      */
     private async validateConsigneeDetails(consigneeDetails: any) {
