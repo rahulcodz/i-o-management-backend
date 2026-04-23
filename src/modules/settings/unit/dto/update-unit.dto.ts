@@ -7,12 +7,17 @@ export class UpdateUnitDto {
     @ApiProperty({ required: false })
     @IsOptional()
     @IsString()
-    orderUnit?: string;
+    code?: string;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsString()
+    unitName?: string;
 
     @ApiProperty({ required: false })
     @IsOptional()
     @IsBoolean()
-    default?: boolean;
+    is_default?: boolean;
 
     @ApiPropertyOptional({ description: 'Advanced fields', type: OptionalAdvancedDto })
     @IsOptional()

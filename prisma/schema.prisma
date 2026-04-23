@@ -57,7 +57,8 @@ model Customer {
   email          String?
   country        String
   company        String?
-  addresses      Json?        // Array of { name: string }
+  currency       String?
+  addresses      Json?        // Array of { id: string, name: string, markDefault: boolean }
   bankName       String?
   beneficiaryName String?
   accountNo      Int?
@@ -89,8 +90,9 @@ model Port {
 
 model Unit {
   id         Int      @id @default(autoincrement())
-  orderUnit  String
-  default    Boolean  @default(false)
+  code       String?
+  unitName   String
+  is_default Boolean  @default(false)
   advanced   Json?    // { packagingUnit: string, weight: number, note: string }
   deletedAt  DateTime?
   products   Product[]
@@ -135,8 +137,9 @@ model Product {
 
 model PackageType {
   id            Int      @id @default(autoincrement())
-  packageType   String
-  markAsDefault Boolean  @default(false)
+  code          String?
+  unitName      String
+  is_default    Boolean  @default(false)
   quotationProducts QuotationProduct[] @relation("QuotationProductPackageType")
   invoiceProducts InvoiceProduct[] @relation("InvoiceProductPackageType")
   deletedAt     DateTime?

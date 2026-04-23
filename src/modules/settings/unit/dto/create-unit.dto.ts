@@ -4,15 +4,20 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { OptionalAdvancedDto } from './optional-advanced.dto';
 
 export class CreateUnitDto {
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    code?: string;
+
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
-    orderUnit: string;
+    unitName: string;
 
     @ApiProperty({ default: false })
     @IsNotEmpty()
     @IsBoolean()
-    default: boolean;
+    is_default: boolean;
 
     @ApiPropertyOptional({ description: 'Advanced fields', type: OptionalAdvancedDto })
     @IsOptional()

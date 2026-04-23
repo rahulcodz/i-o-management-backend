@@ -1,14 +1,19 @@
 import { IsNotEmpty, IsOptional, IsString, IsBoolean } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreatePackageTypeDto {
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    code?: string;
+
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
-    packageType: string;
+    unitName: string;
 
     @ApiProperty({ required: false, default: false })
     @IsOptional()
     @IsBoolean()
-    markAsDefault?: boolean;
+    is_default?: boolean;
 }

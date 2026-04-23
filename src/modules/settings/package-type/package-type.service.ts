@@ -11,22 +11,23 @@ export class PackageTypeService {
 
     async create(createPackageTypeDto: CreatePackageTypeDto) {
         // If setting as default, unset other defaults
-        if (createPackageTypeDto.markAsDefault) {
+        if (createPackageTypeDto.is_default) {
             await this.prisma.packageType.updateMany({
                 where: {
-                    markAsDefault: true,
+                    is_default: true,
                     deletedAt: null,
                 },
                 data: {
-                    markAsDefault: false,
+                    is_default: false,
                 },
             });
         }
 
         return this.prisma.packageType.create({
             data: {
-                packageType: createPackageTypeDto.packageType,
-                markAsDefault: createPackageTypeDto.markAsDefault || false,
+                code: createPackageTypeDto.code,
+                unitName: createPackageTypeDto.unitName,
+                is_default: createPackageTypeDto.is_default || false,
             },
         });
     }
@@ -42,7 +43,7 @@ export class PackageTypeService {
 
         // Add search filter if provided
         if (search) {
-            where.packageType = {
+            where.unitName = {
                 contains: search,
                 mode: 'insensitive',
             };
@@ -57,7 +58,7 @@ export class PackageTypeService {
             skip,
             take: limit,
             orderBy: [
-                { markAsDefault: 'desc' }, // Default package types first
+                { is_default: 'desc' }, // Default package types first
                 { createdAt: 'desc' },
             ],
         });
@@ -96,15 +97,15 @@ export class PackageTypeService {
         }
 
         // If setting as default, unset other defaults
-        if (updatePackageTypeDto.markAsDefault === true) {
+        if (updatePackageTypeDto.is_default === true) {
             await this.prisma.packageType.updateMany({
                 where: {
-                    markAsDefault: true,
+                    is_default: true,
                     deletedAt: null,
                     id: { not: id }, // Exclude current package type
                 },
                 data: {
-                    markAsDefault: false,
+                    is_default: false,
                 },
             });
         }

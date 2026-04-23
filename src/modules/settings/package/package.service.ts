@@ -62,14 +62,14 @@ export class PackageService {
             },
         };
 
-        // Add search filter if provided (search by unit's orderUnit)
+        // Add search filter if provided (search by unit's unitName)
         if (search) {
             where.unit = {
                 ...where.unit,
-                orderUnit: {
+                unitName: {
                     contains: search,
                     mode: 'insensitive',
-                } as any, // Fix for Prisma filter type mismatch; orderUnit is a string field
+                } as any, // Fix for Prisma filter type mismatch; unitName is a string field
             };
         }
 

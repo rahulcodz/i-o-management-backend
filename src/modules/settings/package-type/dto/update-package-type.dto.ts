@@ -5,10 +5,15 @@ export class UpdatePackageTypeDto {
     @ApiProperty({ required: false })
     @IsOptional()
     @IsString()
-    packageType?: string;
+    code?: string;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsString()
+    unitName?: string;
 
     @ApiProperty({ required: false })
     @IsOptional()
     @IsBoolean()
-    markAsDefault?: boolean;
+    is_default?: boolean;
 }

@@ -11,23 +11,24 @@ export class UnitService {
 
     async create(createUnitDto: CreateUnitDto) {
         // If setting as default, unset other defaults
-        if (createUnitDto.default) {
+        if (createUnitDto.is_default) {
             await this.prisma.unit.updateMany({
                 where: {
-                    default: true,
+                    is_default: true,
                     deletedAt: null,
                 },
                 data: {
-                    default: false,
+                    is_default: false,
                 },
             });
         }
 
         const createData: any = {
-            orderUnit: createUnitDto.orderUnit,
-            default: createUnitDto.default,
+            code: createUnitDto.code,
+            unitName: createUnitDto.unitName,
+            is_default: createUnitDto.is_default,
         };
-        
+
         if (createUnitDto.advanced) {
             createData.advanced = createUnitDto.advanced;
         }
@@ -48,7 +49,7 @@ export class UnitService {
 
         // Add search filter if provided
         if (search) {
-            where.orderUnit = {
+            where.unitName = {
                 contains: search,
                 mode: 'insensitive',
             };
@@ -63,7 +64,7 @@ export class UnitService {
             skip,
             take: limit,
             orderBy: [
-                { default: 'desc' }, // Default units first
+                { is_default: 'desc' }, // Default units first
                 { createdAt: 'desc' },
             ],
         });
@@ -102,29 +103,33 @@ export class UnitService {
         }
 
         // If setting as default, unset other defaults
-        if (updateUnitDto.default === true) {
+        if (updateUnitDto.is_default === true) {
             await this.prisma.unit.updateMany({
                 where: {
-                    default: true,
+                    is_default: true,
                     deletedAt: null,
                     id: { not: id }, // Exclude current unit
                 },
                 data: {
-                    default: false,
+                    is_default: false,
                 },
             });
         }
 
         const updateData: any = {};
-        
-        if (updateUnitDto.orderUnit !== undefined) {
-            updateData.orderUnit = updateUnitDto.orderUnit;
+
+        if (updateUnitDto.code !== undefined) {
+            updateData.code = updateUnitDto.code;
         }
-        
-        if (updateUnitDto.default !== undefined) {
-            updateData.default = updateUnitDto.default;
+
+        if (updateUnitDto.unitName !== undefined) {
+            updateData.unitName = updateUnitDto.unitName;
         }
-        
+
+        if (updateUnitDto.is_default !== undefined) {
+            updateData.is_default = updateUnitDto.is_default;
+        }
+
         if (updateUnitDto.advanced !== undefined) {
             if (updateUnitDto.advanced) {
                 updateData.advanced = updateUnitDto.advanced;

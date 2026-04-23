@@ -24,6 +24,11 @@ export class UpdateCustomerDto {
     @IsString()
     company?: string;
 
+    @ApiProperty({ required: false, description: 'Currency code/symbol (e.g. USD, INR)' })
+    @IsOptional()
+    @IsString()
+    currency?: string;
+
     @ApiPropertyOptional({ description: 'Array of customer addresses', type: [AddressDto] })
     @IsOptional()
     @IsArray()

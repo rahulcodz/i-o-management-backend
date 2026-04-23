@@ -1,9 +1,48 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Injectable, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { QueryCustomerDto } from './dto/query-customer.dto';
+import { AddressDto } from './dto/address.dto';
 import { Prisma } from '@prisma/client';
+import { randomUUID } from 'crypto';
+
+function normalizeAddresses(addresses: AddressDto[] | undefined): AddressDto[] | undefined {
+    if (!addresses) return undefined;
+
+    const seenIds = new Set<string>();
+    const normalized = addresses.map((addr) => {
+        const id = addr.id && addr.id.trim() ? addr.id : randomUUID();
+        if (seenIds.has(id)) {
+            throw new BadRequestException(`Duplicate address id: ${id}`);
+        }
+        seenIds.add(id);
+        return {
+            id,
+            name: addr.name,
+            markDefault: !!addr.markDefault,
+        };
+    });
+
+    // Enforce only one default. If multiple marked default, keep first; if none and list non-empty, mark first.
+    const defaults = normalized.filter((a) => a.markDefault);
+    if (defaults.length > 1) {
+        let firstDefaultSeen = false;
+        for (const a of normalized) {
+            if (a.markDefault) {
+                if (firstDefaultSeen) {
+                    a.markDefault = false;
+                } else {
+                    firstDefaultSeen = true;
+                }
+            }
+        }
+    } else if (defaults.length === 0 && normalized.length > 0) {
+        normalized[0].markDefault = true;
+    }
+
+    return normalized;
+}
 
 @Injectable()
 export class CustomersService {
@@ -47,9 +86,10 @@ export class CustomersService {
             managerId: currentUser.userId,
         };
 
-        // Convert addresses array to JSON if provided
-        if (createCustomerDto.addresses && createCustomerDto.addresses.length > 0) {
-            data.addresses = createCustomerDto.addresses;
+        // Normalize addresses: auto-assign unique ids, enforce single default
+        const normalizedCreate = normalizeAddresses(createCustomerDto.addresses);
+        if (normalizedCreate && normalizedCreate.length > 0) {
+            data.addresses = normalizedCreate;
         }
 
         // Automatically set managerId from current logged-in user
@@ -170,9 +210,10 @@ export class CustomersService {
         // Prepare data for Prisma
         const data: any = { ...updateCustomerDto };
 
-        // Convert addresses array to JSON if provided
+        // Normalize addresses: auto-assign unique ids, enforce single default
         if (updateCustomerDto.addresses !== undefined) {
-            data.addresses = updateCustomerDto.addresses;
+            const normalizedUpdate = normalizeAddresses(updateCustomerDto.addresses);
+            data.addresses = normalizedUpdate ?? [];
         }
 
         return this.prisma.customer.update({

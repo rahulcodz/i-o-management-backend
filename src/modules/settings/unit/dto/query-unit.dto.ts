@@ -17,7 +17,7 @@ export class QueryUnitDto {
     @Min(1)
     limit?: number = 10;
 
-    @ApiProperty({ required: false, description: 'Search by order unit' })
+    @ApiProperty({ required: false, description: 'Search by unit name' })
     @IsOptional()
     @IsString()
     search?: string;
