@@ -10,8 +10,19 @@ export class PackageTypeService {
     constructor(private prisma: PrismaService) { }
 
     async create(createPackageTypeDto: CreatePackageTypeDto) {
+        // Bootstrap: if no default exists, force this one to be default
+        const existingDefault = await this.prisma.packageType.findFirst({
+            where: { is_default: true, deletedAt: null },
+            select: { id: true },
+        });
+
+        let is_default = !!createPackageTypeDto.is_default;
+        if (!existingDefault) {
+            is_default = true;
+        }
+
         // If setting as default, unset other defaults
-        if (createPackageTypeDto.is_default) {
+        if (is_default) {
             await this.prisma.packageType.updateMany({
                 where: {
                     is_default: true,
@@ -27,7 +38,7 @@ export class PackageTypeService {
             data: {
                 code: createPackageTypeDto.code,
                 unitName: createPackageTypeDto.unitName,
-                is_default: createPackageTypeDto.is_default || false,
+                is_default,
             },
         });
     }
@@ -108,6 +119,17 @@ export class PackageTypeService {
                     is_default: false,
                 },
             });
+        }
+
+        // Prevent removing the only default
+        if (updatePackageTypeDto.is_default === false && existingPackageType.is_default === true) {
+            const otherDefault = await this.prisma.packageType.findFirst({
+                where: { is_default: true, deletedAt: null, id: { not: id } },
+                select: { id: true },
+            });
+            if (!otherDefault) {
+                throw new NotFoundException('Cannot unset the only default package type — mark another as default first');
+            }
         }
 
         return this.prisma.packageType.update({

@@ -10,8 +10,19 @@ export class UnitService {
     constructor(private prisma: PrismaService) { }
 
     async create(createUnitDto: CreateUnitDto) {
+        // Bootstrap: if no default unit exists yet, force this one to be default
+        const existingDefault = await this.prisma.unit.findFirst({
+            where: { is_default: true, deletedAt: null },
+            select: { id: true },
+        });
+
+        let is_default = !!createUnitDto.is_default;
+        if (!existingDefault) {
+            is_default = true;
+        }
+
         // If setting as default, unset other defaults
-        if (createUnitDto.is_default) {
+        if (is_default) {
             await this.prisma.unit.updateMany({
                 where: {
                     is_default: true,
@@ -26,7 +37,7 @@ export class UnitService {
         const createData: any = {
             code: createUnitDto.code,
             unitName: createUnitDto.unitName,
-            is_default: createUnitDto.is_default,
+            is_default,
         };
 
         if (createUnitDto.advanced) {
@@ -114,6 +125,17 @@ export class UnitService {
                     is_default: false,
                 },
             });
+        }
+
+        // Prevent removing the only default: if unsetting default on the sole default, ignore
+        if (updateUnitDto.is_default === false && existingUnit.is_default === true) {
+            const otherDefault = await this.prisma.unit.findFirst({
+                where: { is_default: true, deletedAt: null, id: { not: id } },
+                select: { id: true },
+            });
+            if (!otherDefault) {
+                throw new NotFoundException('Cannot unset the only default unit — mark another as default first');
+            }
         }
 
         const updateData: any = {};
